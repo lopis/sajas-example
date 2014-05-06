@@ -1,98 +1,59 @@
 package contractNetTest;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import repast.simphony.context.Context;
 import repast.simphony.dataLoader.ContextBuilder;
-import up.fe.liacc.repacl.core.DF;
 
 public class MyContextBuilder implements ContextBuilder<Object> {
 
 	@Override
 	public Context<Object> build(Context<Object> context) {
 		
+		context.setId("termites");
+		ContextWrapper.setContext(context);
 		
 
-		context.setId("termites");
-		DF.setContext(context);
+		try {
+			File pricesFile = new File("prices.dat");
+			File suppliesFile = new File("supplies.dat");
+			Scanner prices = new Scanner(pricesFile);
+			Scanner supplies = new Scanner(suppliesFile);
+			prices.useDelimiter(",");
+			supplies.useDelimiter(",");
 
-		// Create contract net responders
-		for (int i = 0; i < 100; i++) {
-			new SupplierAgent(riceSupplies[i], ricePrices[i],
-					flourSupplies[i], flourPrices[i],
-					oatsSupplies[i], oatsPrices[i]);
+
+			// Create contract net responders
+			for (int i = 0; i < 500; i++) {
+				new SupplierAgent(
+						Integer.valueOf(supplies.next()),
+						Integer.valueOf(prices.next()),
+						Integer.valueOf(supplies.next()),
+						Integer.valueOf(prices.next()),
+						Integer.valueOf(supplies.next()),
+						Integer.valueOf(prices.next()));
+				
+			}
+
+			// Create contract net initiators
+			for (int i = 0; i < 1; i++) {
+				new BuyerAgent();
+			}
+
+			prices.close();
+			supplies.close();
+
+			return context;
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		// Create contract net initiators
-		for (int i = 0; i < 10; i++) {
-			new BuyerAgent();
-		}
-
-
-		return context;
+		
+		return null;
 	}
-	
-	/*
-	 * DATA SET
-	 */
-	
-	int[] riceSupplies = {80, 125, 150, 140, 142, 81, 120, 109, 86, 133,
-			76, 109, 141, 123, 110, 72, 139, 67, 66, 107,
-			59, 126, 92, 134, 131, 90, 95, 91, 64, 93,
-			53, 106, 90, 127, 94, 84, 136, 83, 124, 137,
-			132, 58, 76, 93, 125, 59, 102, 126, 52, 98,
-			68, 136, 100, 123, 121, 50, 120, 131, 89, 136,
-			126, 138, 65, 122, 104, 148, 56, 61, 60, 75,
-			109, 142, 119, 65, 94, 134, 68, 71, 63, 71,
-			115, 88, 114, 114, 91, 135, 100, 104, 123, 89,
-			145, 114, 139, 133, 115, 74, 133, 108, 124, 95};
-	int[] ricePrices = {5,19,16,15,20,19,20,10,10,7,
-			14,14,11,8,11,17,6,3,19,20,
-			20,10,19,7,10,9,16,15,19,16,
-			7,4,20,15,13,11,11,8,6,3,
-			1,7,8,4,18,12,12,16,17,17,
-			4,16,12,2,17,12,11,19,2,16,
-			7,3,11,4,20,7,2,12,13,5,
-			9,16,16,12,8,14,4,6,15,19,
-			3,4,3,14,16,15,9,17,20,5,
-			19,5,9,16,14,2,18,1,16,4};
-	int[] flourSupplies = {74, 119, 119, 69, 94, 98, 122, 129, 67, 56,
-			71, 130, 129, 119, 81, 91, 80, 146, 115, 120,
-			138, 145, 146, 80, 122, 62, 103, 142, 134, 110,
-			138, 75, 137, 110, 80, 54, 106, 65, 122, 135,
-			75, 66, 75, 85, 115, 71, 68, 81, 78, 86,
-			65, 114, 141, 142, 53, 111, 125, 84, 116, 146,
-			72, 136, 143, 148, 73, 85, 122, 88, 124, 90,
-			107, 68, 126, 110, 146, 52, 78, 122, 142, 67,
-			59, 141, 119, 108, 110, 109, 53, 142, 101, 138,
-			129, 60, 123, 126, 62, 137, 86, 141, 133, 71};
-	int[] flourPrices = {18, 7, 11, 20, 12, 4, 15, 20, 5, 9,
-			7, 16, 18, 9, 16, 17, 14, 6, 9, 17,
-			1, 6, 11, 8, 8, 5, 8, 9, 14, 3,
-			16, 5, 10, 8, 3, 7, 12, 3, 1, 2,
-			9, 12, 3, 7, 11, 13, 4, 12, 17, 8,
-			11, 4, 1, 15, 9, 14, 19, 6, 4, 9,
-			2, 13, 14, 4, 10, 9, 4, 1, 2, 6,
-			18, 8, 11, 5, 17, 17, 4, 13, 18, 5,
-			18, 5, 4, 7, 11, 19, 6, 15, 11, 14,
-			6, 19, 12, 12, 2, 14, 5, 2, 10, 2};
-	int[] oatsSupplies = {66, 90, 113, 82, 105, 131, 68, 115, 58, 65,
-			88, 59, 148, 124, 138, 79, 105, 68, 118, 135,
-			150, 143, 87, 83, 92, 74, 112, 53, 121, 135,
-			138, 56, 118, 143, 83, 66, 72, 87, 63, 89,
-			66, 95, 117, 98, 137, 55, 122, 70, 96, 147,
-			126, 103, 117, 118, 79, 129, 74, 83, 86, 70,
-			136, 101, 71, 79, 58, 66, 127, 60, 61, 85,
-			73, 115, 130, 130, 79, 51, 80, 132, 108, 139,
-			79, 95, 87, 148, 69, 133, 66, 116, 131, 57,
-			129, 78, 110, 107, 115, 136, 129, 66, 122, 73};
-	int[] oatsPrices = {11, 3, 7, 1, 11, 5, 10, 20, 17, 7,
-			18, 14, 4, 12, 11, 13, 11, 17, 16, 19,
-			2, 20, 14, 5, 15, 5, 14, 17, 7, 12,
-			17, 12, 17, 7, 13, 6, 2, 15, 3, 17,
-			16, 3, 18, 14, 2, 11, 18, 1, 7, 16,
-			13, 1, 16, 1, 3, 5, 9, 8, 3, 18,
-			10, 7, 17, 16, 17, 1, 14, 6, 9, 1,
-			20, 9, 15, 2, 18, 11, 15, 19, 17, 1,
-			19, 7, 7, 8, 9, 18, 7, 20, 2, 10,
-			9, 5, 13, 4, 6, 20, 9, 8, 6, 17};
-	
 }

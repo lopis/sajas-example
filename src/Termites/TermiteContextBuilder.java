@@ -9,6 +9,8 @@ import repast.simphony.context.space.continuous.ContinuousSpaceFactoryFinder;
 import repast.simphony.context.space.grid.GridFactoryFinder;
 import repast.simphony.dataLoader.ContextBuilder;
 import repast.simphony.engine.environment.RunEnvironment;
+import repast.simphony.engine.schedule.Schedule;
+import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.parameter.Parameters;
 import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.continuous.NdPoint;
@@ -57,8 +59,12 @@ public class TermiteContextBuilder implements ContextBuilder<Object> {
 
 		// create termites
 		for (int i = 0; i < initialTermites; i++) {
-//			Termite t = new Termite(space, grid);
-//			context.add(t);
+			Termite t = new Termite(space, grid);
+			
+			ScheduleParameters params = ScheduleParameters.createRepeating(1, 1);
+			Schedule schedule = new Schedule();
+			schedule.schedule(params, t, "step");
+			context.add(t);
 			
 		}
 		

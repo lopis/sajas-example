@@ -1,8 +1,13 @@
 package contractNetTest;
 
-import up.fe.liacc.repacl.Agent;
-import up.fe.liacc.repacl.acl.ACLMessage;
-import up.fe.liacc.repacl.acl.Performative;
+import java.util.Collection;
+import java.util.Iterator;
+
+import repast.RepastAgent;
+import up.fe.liacc.repacl.core.Agent;
+import up.fe.liacc.repacl.domain.DFService;
+import up.fe.liacc.repacl.domain.FIPANames;
+import up.fe.liacc.repacl.lang.acl.ACLMessage;
 
 /**
  * Let's model an agent that needs to buy some rice, flour and oats.
@@ -11,21 +16,33 @@ import up.fe.liacc.repacl.acl.Performative;
  * @author joaolopes
  *
  */
-public class BuyerAgent extends Agent{
+public class BuyerAgent extends RepastAgent {
 
-	private int unitsNeeded_rice = 100;
-	private int unitsNeeded_flour = 100;
-	private int unitsNeeded_oats = 100;
+	private int unitsNeeded_rice;
+	private int unitsNeeded_flour;
+	private int unitsNeeded_oats;
 	
-	private int maximumPrice = 20;
-
-	public BuyerAgent() {
-		super();
-	}
+	private int maximumPrice = 3500;
 	
 	@Override
 	public void setup() {
-		ACLMessage cfp = new ACLMessage(Performative.CALL_FOR_PROPOSAL);
+		
+		unitsNeeded_rice = 100;
+		unitsNeeded_flour = 100;
+		unitsNeeded_oats = 100;
+		
+		ACLMessage cfp = new ACLMessage(ACLMessage.CALL_FOR_PROPOSAL);
+		cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+		cfp.setSender(this);
+		SupplyRequest supplyRequest = new SupplyRequest(unitsNeeded_rice,
+				unitsNeeded_flour, unitsNeeded_oats);
+		cfp.setContentObject(supplyRequest );
+		Collection<Agent> agents = DFService.getAgents().values();
+		System.out.println("Found " + agents.size() + " agents in the DF");
+		for (Iterator<Agent> iterator = agents.iterator(); iterator.hasNext();) {
+			Agent agent = (Agent) iterator.next();
+			cfp.addReceiver(agent);
+		}
 		addBehavior(new SupplyNetInitiator(this, cfp));
 	}
 

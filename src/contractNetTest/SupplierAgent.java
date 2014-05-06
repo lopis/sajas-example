@@ -1,6 +1,7 @@
 package contractNetTest;
 
-import up.fe.liacc.repacl.Agent;
+import repast.RepastAgent;
+
 
 /**
  * This is a model of a supplier agent. He can sell
@@ -10,7 +11,7 @@ import up.fe.liacc.repacl.Agent;
  * @author joaolopes
  *
  */
-public class SupplierAgent extends Agent{
+public class SupplierAgent extends RepastAgent{
 
 	private int riceSupply;
 	private int ricePrice;

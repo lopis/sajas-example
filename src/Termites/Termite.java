@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 
 import repast.simphony.context.Context;
+import repast.simphony.engine.schedule.Schedule;
+import repast.simphony.engine.schedule.ScheduleParameters;
 import repast.simphony.engine.schedule.ScheduledMethod;
 import repast.simphony.space.continuous.ContinuousSpace;
 import repast.simphony.space.grid.Grid;
@@ -32,12 +34,10 @@ public class Termite { //extends Agent{
 //	private ContinuousSpace <Object> space;
 //	private Grid <Object> grid;
 //	
-//	public Termite(ContinuousSpace<Object> space, 
-//			Grid<Object> grid) {
-//		this.space = space;
-//		this.grid = grid;
-//		this.state = TermiteState.NO_CHIP;
-//	}
+	public Termite(ContinuousSpace<Object> space, 
+			Grid<Object> grid) {
+		
+	}
 //	
 //	
 //	// Find empty sites at north, south, east, and west only
@@ -120,7 +120,7 @@ public class Termite { //extends Agent{
 //	}
 	
 	
-	@ScheduledMethod(start = 1, interval = 1)
+	//@ScheduledMethod(start = 1, interval = 1)
 	public void step() {
 		System.out.println("Ama termite!");
 //		GridPoint thisPt = grid.getLocation(this);
