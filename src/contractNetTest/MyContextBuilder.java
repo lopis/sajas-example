@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import repast.simphony.context.Context;
 import repast.simphony.dataLoader.ContextBuilder;
+import up.fe.liacc.repacl.ContextWrapper;
 
 public class MyContextBuilder implements ContextBuilder<Object> {
 

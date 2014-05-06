@@ -3,7 +3,7 @@ package contractNetTest;
 import java.util.Collection;
 import java.util.Iterator;
 
-import repast.RepastAgent;
+import contractNetTest.repast.RepastAgent;
 import up.fe.liacc.repacl.core.Agent;
 import up.fe.liacc.repacl.domain.DFService;
 import up.fe.liacc.repacl.domain.FIPANames;

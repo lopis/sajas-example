@@ -1,6 +1,7 @@
 package contractNetTest;
 
-import repast.RepastAgent;
+import contractNetTest.repast.RepastAgent;
+
 
 
 /**
