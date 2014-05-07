@@ -7,6 +7,7 @@ import contractNetTest.repast.RepastAgent;
 import up.fe.liacc.repacl.core.Agent;
 import up.fe.liacc.repacl.domain.DFService;
 import up.fe.liacc.repacl.domain.FIPANames;
+import up.fe.liacc.repacl.domain.FIPAAgentManagement.DFAgentDescription;
 import up.fe.liacc.repacl.lang.acl.ACLMessage;
 
 /**
@@ -33,15 +34,16 @@ public class BuyerAgent extends RepastAgent {
 		
 		ACLMessage cfp = new ACLMessage(ACLMessage.CALL_FOR_PROPOSAL);
 		cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-		cfp.setSender(this);
+		cfp.setSender(this.getAID());
 		SupplyRequest supplyRequest = new SupplyRequest(unitsNeeded_rice,
 				unitsNeeded_flour, unitsNeeded_oats);
 		cfp.setContentObject(supplyRequest );
-		Collection<Agent> agents = DFService.getAgents().values();
-		System.out.println("Found " + agents.size() + " agents in the DF");
-		for (Iterator<Agent> iterator = agents.iterator(); iterator.hasNext();) {
-			Agent agent = (Agent) iterator.next();
-			cfp.addReceiver(agent);
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.addService("supplier");
+		DFAgentDescription[] agents = DFService.search(this, dfd);
+		System.out.println("Found " + agents.length + " agents in the DF");
+		for (int i = 0; i < agents.length; i++) {
+			cfp.addReceiver(agents[i].getName());
 		}
 		addBehavior(new SupplyNetInitiator(this, cfp));
 	}

@@ -31,7 +31,7 @@ public class SupplyNetResponder extends ContractNetResponder {
 			
 			ACLMessage proposal = new ACLMessage(ACLMessage.PROPOSE);
 			proposal.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-			proposal.setSender(getAgent());
+			proposal.setSender(getAgent().getAID());
 			proposal.addReceiver(m.getSender());
 			proposal.setContentObject(myPrice);
 			System.out.println("Got CFP. My Proposal: " + myPrice);
@@ -39,7 +39,7 @@ public class SupplyNetResponder extends ContractNetResponder {
 		} else {
 			ACLMessage refuse = new ACLMessage(ACLMessage.REFUSE);
 			refuse.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-			refuse.setSender(getAgent());
+			refuse.setSender(getAgent().getAID());
 			refuse.addReceiver(m.getSender());
 			return refuse;
 		}

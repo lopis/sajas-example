@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import repast.simphony.engine.schedule.ScheduledMethod;
 import up.fe.liacc.repacl.core.Agent;
 import up.fe.liacc.repacl.lang.acl.ACLMessage;
+import up.fe.liacc.repacl.lang.acl.AID;
 import up.fe.liacc.repacl.proto.ContractNetInitiator;
 
 public class SupplyNetInitiator extends ContractNetInitiator {
@@ -27,7 +28,7 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 			ArrayList<ACLMessage> acceptances) {		  
 		
 		int bestOfferPrice = ((BuyerAgent)this.getAgent()).getMaximumPrice();
-		Agent bestOfferAgent = null;
+		AID bestOfferAgent = null;
 		
 		for (ACLMessage proposal : responses) {
 			if (proposal.getPerformative() == ACLMessage.REFUSE) {

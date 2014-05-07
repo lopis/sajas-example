@@ -1,5 +1,8 @@
 package contractNetTest;
 
+import up.fe.liacc.repacl.domain.DFService;
+import up.fe.liacc.repacl.domain.FIPANames;
+import up.fe.liacc.repacl.domain.FIPAAgentManagement.DFAgentDescription;
 import contractNetTest.repast.RepastAgent;
 
 
@@ -39,6 +42,11 @@ public class SupplierAgent extends RepastAgent{
 	
 	@Override
 	public void setup() {
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		dfd.addProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+		dfd.addService("supplier");
+		DFService.registerAgent(this, dfd);
 		addBehavior(new SupplyNetResponder(this));
 	}
 	
