@@ -3,10 +3,10 @@ package contractNetTest;
 import java.util.ArrayList;
 
 import repast.simphony.engine.schedule.ScheduledMethod;
-import up.fe.liacc.repacl.core.Agent;
-import up.fe.liacc.repacl.lang.acl.ACLMessage;
-import up.fe.liacc.repacl.lang.acl.AID;
-import up.fe.liacc.repacl.proto.ContractNetInitiator;
+import up.fe.liacc.sajas.core.Agent;
+import up.fe.liacc.sajas.lang.acl.ACLMessage;
+import up.fe.liacc.sajas.lang.acl.AID;
+import up.fe.liacc.sajas.proto.ContractNetInitiator;
 
 public class SupplyNetInitiator extends ContractNetInitiator {
 	
@@ -17,11 +17,11 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 		startTime = System.currentTimeMillis();
 	}
 	
-	@Override
-	@ScheduledMethod(start=1, interval=0.000001)
-	public void action() {
-		super.action();
-	}
+//	@Override
+//	@ScheduledMethod(start=1, interval=0.000001)
+//	public void action() {
+//		super.action();
+//	}
 	
 	@Override
 	protected void handleAllResponses(ArrayList<ACLMessage> responses,
@@ -63,7 +63,7 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 	
 	@Override
 	protected void handlePropose(ACLMessage m) {
-		System.out.println("Got propose: " + m.getContentObject());
+		//System.out.println("Got propose: " + m.getContentObject());
 	}
 	
 	@Override

@@ -1,14 +1,11 @@
 package contractNetTest;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import contractNetTest.repast.RepastAgent;
-import up.fe.liacc.repacl.core.Agent;
-import up.fe.liacc.repacl.domain.DFService;
-import up.fe.liacc.repacl.domain.FIPANames;
-import up.fe.liacc.repacl.domain.FIPAAgentManagement.DFAgentDescription;
-import up.fe.liacc.repacl.lang.acl.ACLMessage;
+import up.fe.liacc.sajas.domain.DFService;
+import up.fe.liacc.sajas.domain.FIPANames;
+import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
+import up.fe.liacc.sajas.domain.FIPAAgentManagement.ServiceDescription;
+import up.fe.liacc.sajas.lang.acl.ACLMessage;
 
 /**
  * Let's model an agent that needs to buy some rice, flour and oats.
@@ -24,7 +21,7 @@ public class BuyerAgent extends RepastAgent {
 	private int unitsNeeded_oats;
 	
 	private int maximumPrice = 3500;
-	
+
 	@Override
 	public void setup() {
 		
@@ -32,20 +29,23 @@ public class BuyerAgent extends RepastAgent {
 		unitsNeeded_flour = 100;
 		unitsNeeded_oats = 100;
 		
-		ACLMessage cfp = new ACLMessage(ACLMessage.CALL_FOR_PROPOSAL);
+		ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 		cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 		cfp.setSender(this.getAID());
 		SupplyRequest supplyRequest = new SupplyRequest(unitsNeeded_rice,
 				unitsNeeded_flour, unitsNeeded_oats);
 		cfp.setContentObject(supplyRequest );
 		DFAgentDescription dfd = new DFAgentDescription();
-		dfd.addService("supplier");
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName("supplier");
+		sd.setType("supplier");
+		dfd.addServices(sd);
 		DFAgentDescription[] agents = DFService.search(this, dfd);
 		System.out.println("Found " + agents.length + " agents in the DF");
 		for (int i = 0; i < agents.length; i++) {
 			cfp.addReceiver(agents[i].getName());
 		}
-		addBehavior(new SupplyNetInitiator(this, cfp));
+		addBehaviour(new SupplyNetInitiator(this, cfp));
 	}
 
 	public int getMaximumPrice() {

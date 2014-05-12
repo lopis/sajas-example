@@ -1,8 +1,9 @@
 package contractNetTest;
 
-import up.fe.liacc.repacl.domain.DFService;
-import up.fe.liacc.repacl.domain.FIPANames;
-import up.fe.liacc.repacl.domain.FIPAAgentManagement.DFAgentDescription;
+import up.fe.liacc.sajas.domain.DFService;
+import up.fe.liacc.sajas.domain.FIPANames;
+import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
+import up.fe.liacc.sajas.domain.FIPAAgentManagement.ServiceDescription;
 import contractNetTest.repast.RepastAgent;
 
 
@@ -27,7 +28,6 @@ public class SupplierAgent extends RepastAgent{
 	public SupplierAgent(int riceSupply, int ricePrice,
 			int flourSupply, int flourPrice,
 			int oatsSupply, int oatsPrice) {
-		super(); // Registers agent in the DF
 		
 		this.riceSupply = riceSupply;
 		this.ricePrice = ricePrice;
@@ -44,10 +44,18 @@ public class SupplierAgent extends RepastAgent{
 	public void setup() {
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
-		dfd.addProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-		dfd.addService("supplier");
-		DFService.registerAgent(this, dfd);
-		addBehavior(new SupplyNetResponder(this));
+		dfd.addProtocols(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+		ServiceDescription sd = new ServiceDescription();
+		sd.setName("supplier");
+		sd.setType("supplier");
+		dfd.addServices(sd);
+		DFService.register(this, dfd);
+		addBehaviour(new SupplyNetResponder(this));
+	}
+	
+	@Override
+	protected void takeDown() {
+		DFService.deregisterAgent(this);
 	}
 	
 	public int getRiceSupply() {

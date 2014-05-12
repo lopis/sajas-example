@@ -1,8 +1,14 @@
 package contractNetTest;
 
-public class SupplyRequest {
+import java.io.Serializable;
+
+public class SupplyRequest implements Serializable{
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3653447044975295919L;
 	public int unitsNeeded_rice;
 	public int unitsNeeded_flour;
 	public int unitsNeeded_oats;

@@ -4,18 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import contractNetTest.repast.RepastAgent;
 import repast.simphony.context.Context;
-import repast.simphony.dataLoader.ContextBuilder;
-import up.fe.liacc.repacl.ContextWrapper;
 
-public class MyContextBuilder implements ContextBuilder<Object> {
+public class MyContextBuilder extends contractNetTest.repast.SAJaSContextBuilder {
 
 	@Override
 	public Context<Object> build(Context<Object> context) {
+
 		
-		context.setId("termites");
-		ContextWrapper.setContext(context);
-		
+		context.setId("termites");		
 
 		try {
 			File pricesFile = new File("prices.dat");
@@ -25,23 +23,25 @@ public class MyContextBuilder implements ContextBuilder<Object> {
 			prices.useDelimiter(",");
 			supplies.useDelimiter(",");
 
-
+			RepastAgent.setContext(context);
+			
 			// Create contract net responders
-			for (int i = 0; i < 500; i++) {
-				new SupplierAgent(
+			for (int i = 0; i < 1000; i++) {
+				SupplierAgent sa = new SupplierAgent(
 						Integer.valueOf(supplies.next()),
 						Integer.valueOf(prices.next()),
 						Integer.valueOf(supplies.next()),
 						Integer.valueOf(prices.next()),
 						Integer.valueOf(supplies.next()),
 						Integer.valueOf(prices.next()));
-				
+				acceptNewAgent("Supplier" + i, sa).start();
+				//context.add(sa);
 			}
 
 			// Create contract net initiators
-			for (int i = 0; i < 1; i++) {
-				new BuyerAgent();
-			}
+			BuyerAgent ba = new BuyerAgent();
+			acceptNewAgent("Buyer", ba).start();
+			context.add(ba);
 
 			prices.close();
 			supplies.close();

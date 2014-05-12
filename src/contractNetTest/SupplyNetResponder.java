@@ -1,10 +1,10 @@
 package contractNetTest;
 
 import repast.simphony.engine.schedule.ScheduledMethod;
-import up.fe.liacc.repacl.core.Agent;
-import up.fe.liacc.repacl.domain.FIPANames;
-import up.fe.liacc.repacl.lang.acl.ACLMessage;
-import up.fe.liacc.repacl.proto.ContractNetResponder;
+import up.fe.liacc.sajas.core.Agent;
+import up.fe.liacc.sajas.domain.FIPANames;
+import up.fe.liacc.sajas.lang.acl.ACLMessage;
+import up.fe.liacc.sajas.proto.ContractNetResponder;
 
 public class SupplyNetResponder extends ContractNetResponder {
 
@@ -13,11 +13,11 @@ public class SupplyNetResponder extends ContractNetResponder {
 		// TODO Auto-generated constructor stub
 	}
 	
-	@Override
-	@ScheduledMethod(start=1, interval=0.0001)
-	public void action() {
-		super.action();
-	}
+//	@Override
+//	@ScheduledMethod(start=1, interval=0.0001)
+//	public void action() {
+//		super.action();
+//	}
 	
 	@Override
 	protected ACLMessage handleCfp(ACLMessage m) {
@@ -34,7 +34,7 @@ public class SupplyNetResponder extends ContractNetResponder {
 			proposal.setSender(getAgent().getAID());
 			proposal.addReceiver(m.getSender());
 			proposal.setContentObject(myPrice);
-			System.out.println("Got CFP. My Proposal: " + myPrice);
+			//System.out.println("Got CFP. My Proposal: " + myPrice);
 			return proposal;
 		} else {
 			ACLMessage refuse = new ACLMessage(ACLMessage.REFUSE);
