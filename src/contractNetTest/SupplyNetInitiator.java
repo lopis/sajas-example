@@ -1,13 +1,13 @@
 package contractNetTest;
 
-import java.util.ArrayList;
+import java.util.Vector;
 
-import repast.simphony.engine.schedule.ScheduledMethod;
+import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
-import up.fe.liacc.sajas.lang.acl.AID;
 import up.fe.liacc.sajas.proto.ContractNetInitiator;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SupplyNetInitiator extends ContractNetInitiator {
 	
 	long startTime;
@@ -17,27 +17,26 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 		startTime = System.currentTimeMillis();
 	}
 	
-//	@Override
-//	@ScheduledMethod(start=1, interval=0.000001)
-//	public void action() {
-//		super.action();
-//	}
+	@Override
+	public void action() {
+		super.action();
+	}
 	
 	@Override
-	protected void handleAllResponses(ArrayList<ACLMessage> responses,
-			ArrayList<ACLMessage> acceptances) {		  
+	protected void handleAllResponses(Vector responses, Vector acceptances) {		  
 		
 		int bestOfferPrice = ((BuyerAgent)this.getAgent()).getMaximumPrice();
 		AID bestOfferAgent = null;
 		
-		for (ACLMessage proposal : responses) {
+		for (Object obj : responses) {
+			ACLMessage proposal = (ACLMessage) obj;
 			if (proposal.getPerformative() == ACLMessage.REFUSE) {
 				
 			} else if (proposal.getContentObject() == null) {
 				
-			} else if (((int) proposal.getContentObject()) < bestOfferPrice) {
+			} else if (((SupplyProposal) proposal.getContentObject()).myPrice < bestOfferPrice) {
 				// NEW BEST PROPOSAL
-				bestOfferPrice = ((int) proposal.getContentObject());
+				bestOfferPrice = ((SupplyProposal) proposal.getContentObject()).myPrice;
 				if (bestOfferAgent != null) {
 					ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
 					m.addReceiver(bestOfferAgent);

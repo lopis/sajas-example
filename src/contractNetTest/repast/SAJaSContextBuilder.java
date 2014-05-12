@@ -2,13 +2,14 @@ package contractNetTest.repast;
 
 import repast.simphony.context.Context;
 import repast.simphony.dataLoader.ContextBuilder;
+import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.domain.AMSService;
 import up.fe.liacc.sajas.domain.AgentControler;
-import up.fe.liacc.sajas.lang.acl.AID;
 
 public abstract class SAJaSContextBuilder implements ContextBuilder<Object> {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public abstract Context build(Context<Object> context);
 

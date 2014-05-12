@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import contractNetTest.repast.RepastAgent;
 import repast.simphony.context.Context;
+import repast.simphony.engine.environment.RunEnvironment;
 
 public class MyContextBuilder extends contractNetTest.repast.SAJaSContextBuilder {
 
@@ -23,7 +24,7 @@ public class MyContextBuilder extends contractNetTest.repast.SAJaSContextBuilder
 			prices.useDelimiter(",");
 			supplies.useDelimiter(",");
 
-			RepastAgent.setContext(context);
+			RepastAgent.setContext(context, RunEnvironment.getInstance().getCurrentSchedule());
 			
 			// Create contract net responders
 			for (int i = 0; i < 1000; i++) {
