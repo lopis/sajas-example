@@ -5,6 +5,7 @@ import java.io.IOException;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
+import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.ContractNetResponder;
 
 public class SupplyNetResponder extends ContractNetResponder {
@@ -14,15 +15,19 @@ public class SupplyNetResponder extends ContractNetResponder {
 	}
 	
 	@Override
-	public void action() {
-		super.action();
-	}
-	
-	@Override
 	protected ACLMessage handleCfp(ACLMessage m) {
-		SupplyRequest sr = (SupplyRequest) m.getContentObject();
-		SupplierAgent owner = (SupplierAgent) getAgent();
-		int myPrice = owner.getPrice(sr);
+		SupplyRequest sr;
+		int myPrice;
+		SupplierAgent owner;
+		
+		try {
+			sr = (SupplyRequest) m.getContentObject();
+			owner = (SupplierAgent) getAgent();
+			myPrice = owner.getPrice(sr);
+		} catch (UnreadableException e1) {
+			System.err.println("Failed to read ACLMessage content.");
+			return null;
+		}
 		
 		if (sr.unitsNeeded_flour <= owner.getFlourSupply()
 			&& sr.unitsNeeded_oats <= owner.getOatsSupply()

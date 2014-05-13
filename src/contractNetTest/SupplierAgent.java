@@ -60,7 +60,12 @@ public class SupplierAgent extends RepastAgent{
 	
 	@Override
 	protected void takeDown() {
-		DFService.deregisterAgent(this);
+		try {
+			DFService.deregister(this);
+		} catch (FIPAException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public int getRiceSupply() {

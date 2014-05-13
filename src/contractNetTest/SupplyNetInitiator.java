@@ -5,6 +5,7 @@ import java.util.Vector;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
+import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.ContractNetInitiator;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -18,11 +19,6 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 	}
 	
 	@Override
-	public void action() {
-		super.action();
-	}
-	
-	@Override
 	protected void handleAllResponses(Vector responses, Vector acceptances) {		  
 		
 		int bestOfferPrice = ((BuyerAgent)this.getAgent()).getMaximumPrice();
@@ -32,23 +28,29 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 			ACLMessage proposal = (ACLMessage) obj;
 			if (proposal.getPerformative() == ACLMessage.REFUSE) {
 				
-			} else if (proposal.getContentObject() == null) {
-				
-			} else if (((SupplyProposal) proposal.getContentObject()).myPrice < bestOfferPrice) {
-				// NEW BEST PROPOSAL
-				bestOfferPrice = ((SupplyProposal) proposal.getContentObject()).myPrice;
-				if (bestOfferAgent != null) {
-					ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-					m.addReceiver(bestOfferAgent);
-					acceptances.add(m);
+			} else
+				try {
+					if (proposal.getContentObject() == null) {
+						
+					} else if (((SupplyProposal) proposal.getContentObject()).myPrice < bestOfferPrice) {
+						// NEW BEST PROPOSAL
+						bestOfferPrice = ((SupplyProposal) proposal.getContentObject()).myPrice;
+						if (bestOfferAgent != null) {
+							ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+							m.addReceiver(bestOfferAgent);
+							acceptances.add(m);
+						}
+						bestOfferAgent = proposal.getSender();
+					} else {
+						// COULDN'T BEAT THE BEST
+						ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+						m.addReceiver(proposal.getSender());
+						acceptances.add(m);
+					}
+				} catch (UnreadableException e) {
+					System.err.println("Failed to read ACLMessage content.");
+					return;
 				}
-				bestOfferAgent = proposal.getSender();
-			} else {
-				// COULDN'T BEAT THE BEST
-				ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-				m.addReceiver(proposal.getSender());
-				acceptances.add(m);
-			}
 		}
 		
 		// THE FINAL BEST
@@ -61,7 +63,7 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 	}
 	
 	@Override
-	protected void handlePropose(ACLMessage m) {
+	protected void handlePropose(ACLMessage m, Vector acceptances) {
 		//System.out.println("Got propose: " + m.getContentObject());
 	}
 	
