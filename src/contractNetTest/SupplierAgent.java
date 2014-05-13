@@ -1,6 +1,7 @@
 package contractNetTest;
 
 import up.fe.liacc.sajas.domain.DFService;
+import up.fe.liacc.sajas.domain.FIPAException;
 import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.ServiceDescription;
@@ -49,7 +50,11 @@ public class SupplierAgent extends RepastAgent{
 		sd.setName("supplier");
 		sd.setType("supplier");
 		dfd.addServices(sd);
-		DFService.register(this, dfd);
+		try {
+			DFService.register(this, dfd);
+		} catch (FIPAException e) {
+			System.err.println(e.getMessage());
+		}
 		addBehaviour(new SupplyNetResponder(this));
 	}
 	

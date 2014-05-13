@@ -1,9 +1,10 @@
 package contractNetTest;
 
+import java.io.IOException;
+
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
-import up.fe.liacc.sajas.lang.acl.MessageTemplate;
 import up.fe.liacc.sajas.proto.ContractNetResponder;
 
 public class SupplyNetResponder extends ContractNetResponder {
@@ -31,7 +32,9 @@ public class SupplyNetResponder extends ContractNetResponder {
 			proposal.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 			proposal.setSender(getAgent().getAID());
 			proposal.addReceiver(m.getSender());
-			proposal.setContentObject(new SupplyProposal(myPrice));
+			try {
+				proposal.setContentObject(new SupplyProposal(myPrice));
+			} catch (IOException e) { /*never fails*/ }
 			//System.out.println("Got CFP. My Proposal: " + myPrice);
 			return proposal;
 		} else {
