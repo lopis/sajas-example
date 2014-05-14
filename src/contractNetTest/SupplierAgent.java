@@ -63,8 +63,9 @@ public class SupplierAgent extends RepastAgent{
 		try {
 			DFService.deregister(this);
 		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			System.err.println("[DF] Failed to deregister agent.");
+			//e.printStackTrace();
 		}
 	}
 	

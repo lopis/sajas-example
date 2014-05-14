@@ -64,12 +64,12 @@ public class SupplyNetInitiator extends ContractNetInitiator {
 	
 	@Override
 	protected void handlePropose(ACLMessage m, Vector acceptances) {
-		//System.out.println("Got propose: " + m.getContentObject());
+		System.out.println("Got propose");
 	}
 	
 	@Override
 	protected void handleRefuse(ACLMessage m) {
-		//System.out.println("Got refuse");
+		System.out.println("Got refuse");
 	}
 	
 }

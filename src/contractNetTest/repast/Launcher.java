@@ -30,7 +30,7 @@ public abstract class Launcher implements ContextBuilder<Object> {
 	protected abstract void setup();
 	
 	protected void setContextId(String id) {
-		context.setId(id);;
+		context.setId(id);
 	}
 	
 	public Context<Object> getContext() {
