@@ -27,12 +27,12 @@ public class MyLauncher extends Launcher {
 						Integer.valueOf(prices.next()),
 						Integer.valueOf(supplies.next()),
 						Integer.valueOf(prices.next()));
-				acceptNewAgent("Supplier" + i, sa).start();
+				acceptNewAgent("Supplier" + i, sa);
 			}
 
 			// Create contract net initiators
 			BuyerAgent ba = new BuyerAgent();
-			acceptNewAgent("Buyer", ba).start();
+			acceptNewAgent("Buyer", ba);
 
 			prices.close();
 			supplies.close();

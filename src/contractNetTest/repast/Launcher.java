@@ -45,7 +45,7 @@ public abstract class Launcher implements ContextBuilder<Object> {
 	 * @param ra
 	 * @return
 	 */
-	public AgentController acceptNewAgent(String name, Agent a) {
+	public void acceptNewAgent(String name, Agent a) {
 		a.setAID(new AID(name));
 		AMSService.register(a);
 		
@@ -53,7 +53,7 @@ public abstract class Launcher implements ContextBuilder<Object> {
 		
 		// Return for calling start()
 		AgentController ac = new AgentController(a);
-		return ac;
+		ac.start();
 	}
 	
 }
