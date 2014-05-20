@@ -2,7 +2,7 @@ package contractNetTest;
 
 import java.io.IOException;
 
-import contractNetTest.repast.RepastAgent;
+import up.fe.liacc.repast.RepastAgent;
 import up.fe.liacc.sajas.domain.DFService;
 import up.fe.liacc.sajas.domain.FIPAException;
 import up.fe.liacc.sajas.domain.FIPANames;

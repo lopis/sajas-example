@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import contractNetTest.repast.Launcher;
+import up.fe.liacc.repast.Launcher;
 
 public class MyLauncher extends Launcher {
 

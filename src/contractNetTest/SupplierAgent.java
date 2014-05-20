@@ -1,11 +1,11 @@
 package contractNetTest;
 
+import up.fe.liacc.repast.RepastAgent;
 import up.fe.liacc.sajas.domain.DFService;
 import up.fe.liacc.sajas.domain.FIPAException;
 import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.ServiceDescription;
-import contractNetTest.repast.RepastAgent;
 
 
 
