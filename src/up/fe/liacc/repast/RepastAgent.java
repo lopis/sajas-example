@@ -18,7 +18,7 @@ public class RepastAgent extends Agent {
 	}
 	
 	@Override
-	protected void removeBehaviour(Behaviour b) {
+	public void removeBehaviour(Behaviour b) {
 		// unschedule the behaviour
 		RepastAgent.behaviourAction.removeBehaviour(b);
 		getBehaviours().remove(b);
