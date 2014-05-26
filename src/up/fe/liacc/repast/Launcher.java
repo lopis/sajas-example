@@ -15,12 +15,11 @@ import up.fe.liacc.sajas.wrapper.AgentController;
  * @author joaolopes
  *
  */
-public abstract class Launcher implements ContextBuilder<Object> {
+public abstract class Launcher implements ContextBuilder<Object>{
 
 	private Context<Object> context;
 
-	@SuppressWarnings("rawtypes")
-	@Override
+	
 	public Context build(Context<Object> context) {
 		this.context = context;
 		
