@@ -21,6 +21,8 @@ public class SellResponder extends SSContractNetResponder {
 
 	public SellResponder(Agent a, ACLMessage cfp, String product, int myPrice) {
 		super(a, cfp);
+		
+		this.myPrice = myPrice;
 	}
 
 	@Override
@@ -30,10 +32,11 @@ public class SellResponder extends SSContractNetResponder {
 			if (request == null) {
 				System.err.println("Supply request is null.");
 			}
-			System.out.println("[S " + myAgent.getLocalName()
-					+ "] Propose for " + request.getAmount() 
+			System.out.println("\u25A0 S " + myAgent.getLocalName()
+					+ "] Propose to " + m.getSender().getLocalName()
+					+ " for " + request.getAmount() 
 					+ " of " + request.getProduct() 
-					+ ": " + myPrice);
+					+ ": " + (myPrice * request.getAmount()) );
 			
 			return createProposal(m, request);
 		} catch (UnreadableException e) {

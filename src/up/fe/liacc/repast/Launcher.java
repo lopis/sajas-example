@@ -24,7 +24,7 @@ public abstract class Launcher implements ContextBuilder<Object>{
 		this.context = context;
 		
 		// create action for behaviour scheduling
-		ScheduleParameters params = ScheduleParameters.createRepeating(1, 1);
+		ScheduleParameters params = ScheduleParameters.createRepeating(1, 1000);
 		BehaviourAction behaviourAction = new BehaviourAction();
 		RunEnvironment.getInstance().getCurrentSchedule().schedule(params, behaviourAction);
 		context.add(behaviourAction);

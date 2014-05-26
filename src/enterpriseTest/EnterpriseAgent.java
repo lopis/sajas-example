@@ -2,9 +2,13 @@ package enterpriseTest;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
-import enterpriseTest.proto.SellBehaviour;
+
+import enterpriseTest.proto.BuyBehaviour;
+import enterpriseTest.proto.SellDispatcher;
 import up.fe.liacc.repast.RepastAgent;
+import up.fe.liacc.sajas.core.behaviours.SimpleBehaviour;
 import up.fe.liacc.sajas.domain.DFService;
 import up.fe.liacc.sajas.domain.FIPAException;
 import up.fe.liacc.sajas.domain.FIPANames;
@@ -32,29 +36,71 @@ public class EnterpriseAgent extends RepastAgent {
 		super.setup();
 		
 		// Start responder
-		addBehaviour(new SellBehaviour(this, sells));
+		addBehaviour(new SellDispatcher(this, sells));
+		DFAgentDescription dfd1 = new DFAgentDescription();
+		
+		// The name of the service is the name of the product being sold
+		// Register all services/products
+		for (Iterator<String> iterator = sells.keySet().iterator(); iterator.hasNext();) {
+			String product = iterator.next();
+			ServiceDescription sd = new ServiceDescription();
+			sd.setName(product);
+			sd.setType("sell");
+			dfd1.addServices(sd);
+		}
+			
+		dfd1.setName(getAID());
+		try {
+			dfd1 = DFService.register(this, dfd1);
+		} catch (FIPAException e) {
+			System.err.println(e.getMessage());
+			return;
+		}
+
+		if (buys.isEmpty()) {
+			return;
+		}
 		
 		// Start initiator with the first item to buy
+		setupNextBuy();
+	}
+
+	public void setupNextBuy() {
 		SupplyRequest request = buys.pop();
-		DFAgentDescription dfd = new DFAgentDescription(); // Get agents that sell this product from the DF
+		DFAgentDescription dfd2 = new DFAgentDescription(); // Get agents that sell this product from the DF
 		ServiceDescription sd = new ServiceDescription();
 		sd.setName(request.getProduct()); // The name of the service is the name of the product being sold
-		dfd.addServices(sd);
+		sd.setType("sell");
+		dfd2.addServices(sd);
 		DFAgentDescription[] results = {};
 		try {
 			// Search the DF
-			results = DFService.search(this, dfd);
+			results = DFService.search(this, dfd2);
 			System.out.println("[B " + getLocalName() + "] Found "
 					+ results.length + " sellers in the DF");
 			if (results.length == 0) {
 				System.out.println("No sellers found!");
+				buys.add(request); //Try again later
+				addBehaviour(new SimpleBehaviour() {
+					@Override
+					public void action() {
+						// On the next tick, try to setup a new behaviour
+						setupNextBuy();
+						// Stop this behaviour.
+						removeBehaviour(this);
+					}
+				});
+			} else {
+				ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
+				cfp.setSender(this.getAID());
+				for (int i = 0; i < results.length; i++) {
+					cfp.addReceiver(results[i].getName());
+				}
+				cfp.setContentObject(request);
+				cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+				// Start responder
+				addBehaviour(new BuyBehaviour(this, cfp, request.getAmount(), request.getProduct()));
 			}
-			ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
-			for (int i = 0; i < results.length; i++) {
-				cfp.addReceiver(results[i].getName());
-			}
-			cfp.setContentObject(request);
-			cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
@@ -65,22 +111,10 @@ public class EnterpriseAgent extends RepastAgent {
 	}
 
 	public void addBuy(String product, int amount) {
-		buys.add(new SupplyRequest(product, amount));
+		buys.push(new SupplyRequest(product, amount));
 	}
 
 	public void addSell(String product, int price) {
-		DFAgentDescription dfd = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setName(product); // The name of the service is the name of the product being sold
-		dfd.addServices(sd);
-		dfd.setName(getAID());
-		try {
-			dfd = DFService.register(this, dfd);
-		} catch (FIPAException e) {
-			System.err.println(e.getMessage());
-			return;
-		}
-
 		sells.put(product, price);
 	}
 }

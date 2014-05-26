@@ -12,17 +12,13 @@ import up.fe.liacc.sajas.lang.acl.MessageTemplate;
 import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.SSResponderDispatcher;
 
-public class SellBehaviour extends SSResponderDispatcher {
+public class SellDispatcher extends SSResponderDispatcher {
 
 	private HashMap<String, Integer> myPrices = new HashMap<String, Integer>(); // The key is the product
 
-	public SellBehaviour(Agent agent, HashMap<String, Integer> prices) {
+	public SellDispatcher(Agent agent, HashMap<String, Integer> prices) {
 		super(agent, createTemplate());
 		this.myPrices = prices;
-	}
-	
-	public void sellProduct(int price, String product) {
-		myPrices.put(product, price);
 	}
 	
 	private static MessageTemplate createTemplate() {

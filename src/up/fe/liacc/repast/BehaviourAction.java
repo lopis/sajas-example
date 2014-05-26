@@ -25,8 +25,11 @@ public class BehaviourAction implements IAction{
 
 	public void execute() {
 		Collections.shuffle(behaviours);
-		for(Behaviour b : behaviours) {
-			b.action();
+		
+		// Must iterate like this because action() may modify this list.
+		// May throw ConcurrentModicationException
+		for (int i = 0; i < behaviours.size(); i++) { 
+			behaviours.get(i).action();
 		}
 	}
 	
