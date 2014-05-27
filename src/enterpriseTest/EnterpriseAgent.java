@@ -24,6 +24,9 @@ public class EnterpriseAgent extends RepastAgent {
 
 	private LinkedList<SupplyRequest> buys = new LinkedList<SupplyRequest>(); // products -> amounts
 	private HashMap<String, Integer> sells = new HashMap<String, Integer>(); // products -> prices
+	
+	private static final int MAX_RETRIES = 5;
+	private int retries;
 
 
 	public EnterpriseAgent(String name) {
@@ -33,8 +36,20 @@ public class EnterpriseAgent extends RepastAgent {
 
 	@Override
 	protected void setup() {
-		super.setup();
 		
+		if (!sells.isEmpty()) {
+			setupSell();
+		}
+
+		if (!buys.isEmpty()) {
+			// Start initiator with the first item to buy
+			setupNextBuy();
+		}
+		
+		
+	}
+
+	private void setupSell() {
 		// Start responder
 		addBehaviour(new SellDispatcher(this, sells));
 		DFAgentDescription dfd1 = new DFAgentDescription();
@@ -56,13 +71,6 @@ public class EnterpriseAgent extends RepastAgent {
 			System.err.println(e.getMessage());
 			return;
 		}
-
-		if (buys.isEmpty()) {
-			return;
-		}
-		
-		// Start initiator with the first item to buy
-		setupNextBuy();
 	}
 
 	public void setupNextBuy() {
@@ -76,27 +84,35 @@ public class EnterpriseAgent extends RepastAgent {
 		try {
 			// Search the DF
 			results = DFService.search(this, dfd2);
-			System.out.println("[B " + getLocalName() + "] Found "
-					+ results.length + " sellers in the DF");
+			
 			if (results.length == 0) {
-				System.out.println("No sellers found!");
-				buys.add(request); //Try again later
-				addBehaviour(new SimpleBehaviour() {
-					@Override
-					public void action() {
-						// On the next tick, try to setup a new behaviour
-						setupNextBuy();
-						// Stop this behaviour.
-						removeBehaviour(this);
-					}
-				});
+				if (retries++ < MAX_RETRIES) {
+					buys.add(request); //Try again later
+					addBehaviour(new SimpleBehaviour() {
+						@Override
+						public void action() {
+							// On the next tick, try to setup a new behaviour
+							setupNextBuy();
+							// Stop this behaviour.
+							removeBehaviour(this);
+						}
+					});
+				} else {
+					System.out.println("[" + getLocalName() + "] No sellers found!");
+				}
 			} else {
+				System.out.println("[" + getLocalName() + "] Found "
+						+ results.length + " sellers of " + request.getProduct());
+				for (int i = 0; i < results.length; i++) {
+					System.out.println("\t\t" + results[i].getName());
+				}
 				ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
 				cfp.setSender(this.getAID());
 				for (int i = 0; i < results.length; i++) {
 					cfp.addReceiver(results[i].getName());
 				}
 				cfp.setContentObject(request);
+				cfp.setConversationId("");
 				cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 				// Start responder
 				addBehaviour(new BuyBehaviour(this, cfp, request.getAmount(), request.getProduct()));

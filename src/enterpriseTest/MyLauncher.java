@@ -9,7 +9,7 @@ public class MyLauncher extends Launcher {
 	/**
 	 * The number of agents.
 	 */
-	static final int NUMBER_OF_AGENTS = 20;
+	static final int NUMBER_OF_AGENTS = 10;
 	String[] products = {EnterpriseAgent.OATS, EnterpriseAgent.RICE, EnterpriseAgent.WHEAT};
 	Random r = new Random();
 

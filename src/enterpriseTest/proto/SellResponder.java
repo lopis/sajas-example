@@ -32,18 +32,43 @@ public class SellResponder extends SSContractNetResponder {
 			if (request == null) {
 				System.err.println("Supply request is null.");
 			}
-			System.out.println("\u25A0 S " + myAgent.getLocalName()
+			System.out.println("[" + myAgent.getLocalName()
 					+ "] Propose to " + m.getSender().getLocalName()
 					+ " for " + request.getAmount() 
 					+ " of " + request.getProduct() 
-					+ ": " + (myPrice * request.getAmount()) );
+					+ ": " + (myPrice * request.getAmount()) + "$" );
 			
 			return createProposal(m, request);
 		} catch (UnreadableException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	@Override
+	protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose,
+			ACLMessage accept) {
+		System.out.println("[" + myAgent.getLocalName()
+				+ "]\tMy proposal to " + cfp.getSender().getLocalName() + " was accepted.");
 		
+		if (Math.random() > 0.0) {
+			// Prepare INFORM message. 
+			ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+			reply.setProtocol(cfp.getProtocol());
+			reply.setConversationId(cfp.getConversationId());
+			return reply;
+			
+		} else {
+			myAgent.removeBehaviour(this);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose,
+			ACLMessage reject) {
+		System.out.println("[" + myAgent.getLocalName() + "]\tMy proposal was rejected.");
 	}
 
 	private ACLMessage createProposal(ACLMessage m, SupplyRequest request) {
@@ -51,6 +76,7 @@ public class SellResponder extends SSContractNetResponder {
 		proposal.setSender(myAgent.getAID());
 		proposal.addReceiver(m.getSender());
 		proposal.setProtocol(m.getProtocol());
+		proposal.setConversationId(m.getConversationId());
 		try {
 			proposal.setContentObject(new SupplyProposal(request.getProduct(), request.getAmount(), myPrice));
 			return proposal;
@@ -60,6 +86,4 @@ public class SellResponder extends SSContractNetResponder {
 		}
 		return null;
 	}
-	
-
 }

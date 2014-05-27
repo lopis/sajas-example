@@ -1,4 +1,6 @@
 repacl-example
 ==============
 
-Examples using the API I developed. Made in Repast Simphony 2.1
+Examples made in Repast Simphony 2.1 and using SAJaS
+
+https:a//github.com/lopis/sajas

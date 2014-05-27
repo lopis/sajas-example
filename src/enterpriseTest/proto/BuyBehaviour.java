@@ -1,11 +1,13 @@
 package enterpriseTest.proto;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.Vector;
 
+import enterpriseTest.EnterpriseAgent;
 import enterpriseTest.SupplyProposal;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
+import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
 import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.ContractNetInitiator;
@@ -14,64 +16,114 @@ public class BuyBehaviour extends ContractNetInitiator {
 
 	String product;
 	int demand;
+	
+	long startTime;
 
 	public BuyBehaviour(Agent agent, ACLMessage cfp, int demand, String product) {
 		super(agent, cfp);
 		this.demand = demand;
 		this.product = product;
 	}
-
-
-	public BuyBehaviour(Agent agent) {
-		super(agent, null);
+	
+	@Override
+	public ArrayList<ACLMessage> prepareCfps(ACLMessage cfp) {
+		startTime = System.currentTimeMillis();
+		return super.prepareCfps(cfp);
 	}
 
-	@SuppressWarnings("rawtypes")
+//	public BuyBehaviour(Agent agent) {
+//		super(agent, null);
+//	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void handleAllResponses(Vector responses, Vector acceptances) {
-		try {
-			int bestPrice = Integer.MAX_VALUE;
-			AID bestSeller = null;
-			
-			
-			// Get lowest price FIXME: use trust
-			for (Iterator iterator = responses.iterator(); iterator.hasNext();) {
-				ACLMessage message = (ACLMessage) iterator.next();
-				SupplyProposal proposal;
+		
+		int bestOfferPrice = Integer.MAX_VALUE;
+		AID bestOfferAgent = null;
 
-				proposal = (SupplyProposal) (message).getContentObject();
-				if (proposal.myPrice < bestPrice) {
-					bestSeller = message.getSender();
-					bestPrice = proposal.myPrice;
+		for (Object obj : responses) {
+			ACLMessage proposal = (ACLMessage) obj;
+			if (proposal.getPerformative() == ACLMessage.REFUSE) {
+
+			} else {
+				try {
+					if (proposal.getContentObject() == null) {
+
+					} else if (((SupplyProposal) proposal.getContentObject()).myPrice < bestOfferPrice) {
+						// NEW BEST PROPOSAL
+						bestOfferPrice = ((SupplyProposal) proposal.getContentObject()).myPrice;
+						if (bestOfferAgent != null) {
+							ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+							m.setSender(this.getAgent().getAID());
+							m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+							m.addReceiver(bestOfferAgent);
+							acceptances.add(m);
+						}
+						bestOfferAgent = proposal.getSender();
+					} else {
+						// COULDN'T BEAT THE BEST
+						ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+						m.addReceiver(proposal.getSender());
+						m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+						m.setConversationId(this.cfp.getConversationId());
+						acceptances.add(m);
+					}
+				} catch (UnreadableException e) {
+					System.err.println("Failed to read ACLMessage content.");
+					return;
 				}
 			}
-		} catch (UnreadableException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+
+		// THE FINAL BEST
+		ACLMessage m = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+		m.setSender(this.getAgent().getAID());
+		m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+		long timeTaken = System.currentTimeMillis() - startTime;
+		System.out.println("[" + myAgent.getLocalName() + "] " + bestOfferAgent.getLocalName() 
+				+ " proposes " + bestOfferPrice + "§ for " + demand + " of " + product + "."
+				+ "\t\tTime:" + timeTaken + "0s");
+		m.setConversationId(this.cfp.getConversationId());
+		m.addReceiver(bestOfferAgent);
+		acceptances.add(m);
 	}
 
 
-	@Override
-	protected void handlePropose(ACLMessage m, @SuppressWarnings("rawtypes") Vector acceptances) {
-		try {
-			SupplyProposal proposal = (SupplyProposal) m.getContentObject();
-			System.out.println("\u25A1 B " + myAgent.getLocalName()
-					+ "] " + m.getSender()
-					+ " proposes " + proposal.myPrice
-					+ " for " + demand + " of " + " product.");
+//	@Override
+//	protected void handlePropose(ACLMessage m, @SuppressWarnings("rawtypes") Vector acceptances) {
+//		try {
+//			SupplyProposal proposal = (SupplyProposal) m.getContentObject();
+//			System.out.println("\u25A1 B " + myAgent.getLocalName()
+//					+ "] " + m.getSender()
+//					+ " proposes " + proposal.myPrice
+//					+ " for " + demand + " of " + " product.");
+//
+//		} catch (UnreadableException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
-		} catch (UnreadableException e) {
-			e.printStackTrace();
-		}
-	}
-
+	@SuppressWarnings("unused")
 	private ACLMessage createRefuse(ACLMessage m) {
 		ACLMessage refuse = new ACLMessage(ACLMessage.REFUSE);
 		refuse.setProtocol(m.getProtocol());
 		refuse.setSender(myAgent.getAID());
 
 		return refuse;
+	}
+	
+	@Override
+	/**
+	 * On end, deregister this and initiate the next
+	 * protocol calling nextBuy() on myAgent. The superclass
+	 * will already have removed this behaviour from the 
+	 * agent's set of behaviours when this method is called.
+	 */
+	public int onEnd() {
+		((EnterpriseAgent) myAgent).setupNextBuy();
+		
+		return 1; // 1 means finished
 	}
 
 }

@@ -1,6 +1,7 @@
 package enterpriseTest.proto;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import enterpriseTest.SupplyRequest;
 import up.fe.liacc.sajas.core.Agent;
@@ -19,12 +20,17 @@ public class SellDispatcher extends SSResponderDispatcher {
 	public SellDispatcher(Agent agent, HashMap<String, Integer> prices) {
 		super(agent, createTemplate());
 		this.myPrices = prices;
+		System.out.println("[" + myAgent.getLocalName() + "] I'm selling:");
+		for (Iterator<String> iterator = myPrices.keySet().iterator(); iterator.hasNext();) {
+			System.out.println("\t\t\t" + iterator.next());
+		}
 	}
 	
 	private static MessageTemplate createTemplate() {
 		MessageTemplate template = new MessageTemplate();
 		template.addPerformative(ACLMessage.CFP);
 		template.addProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+		template.addConversationId("");
 		return template;
 	}
 
@@ -46,7 +52,6 @@ public class SellDispatcher extends SSResponderDispatcher {
 				public void action() {}
 			};
 		}
-		
 	}
 
 }
