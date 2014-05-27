@@ -19,4 +19,10 @@ public class SupplyProposal implements Serializable{
 		this.myPrice = amount * unitPrice;
 	}
 
+	@Override
+	public String toString() {
+		return "(SuplyProposal product:" + product
+				+ " price:" + myPrice + ")";
+	}
+
 }

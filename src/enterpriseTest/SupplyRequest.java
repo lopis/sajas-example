@@ -38,4 +38,9 @@ public class SupplyRequest implements Serializable{
 		this.amount = amount;
 	}
 
+	@Override
+	public String toString() {
+		return "(SuplyRequest product:" + product
+				+ " amount:" + amount + ")";
+	}
 }
