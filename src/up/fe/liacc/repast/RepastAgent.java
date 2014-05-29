@@ -1,7 +1,9 @@
 package up.fe.liacc.repast;
 
+import up.fe.liacc.sajas.MTS;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.core.behaviours.Behaviour;
+import up.fe.liacc.sajas.lang.acl.ACLMessage;
 
 public class RepastAgent extends Agent {
 	
@@ -22,6 +24,11 @@ public class RepastAgent extends Agent {
 		// unschedule the behaviour
 		RepastAgent.behaviourAction.removeBehaviour(b);
 		getBehaviours().remove(b);
+	}
+	
+	public void send(ACLMessage message) {
+		message.setSender(getAID());
+		MTS.send(message);
 	}
 
 }

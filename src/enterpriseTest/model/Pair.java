@@ -1,6 +1,5 @@
 package enterpriseTest.model;
 
-import up.fe.liacc.sajas.core.AID;
 
 public class Pair<T> implements Comparable<Pair<T>>{
 

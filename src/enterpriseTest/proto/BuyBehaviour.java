@@ -3,7 +3,7 @@ package enterpriseTest.proto;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import enterpriseTest.agent.EnterpriseAgent;
+import enterpriseTest.agent.BuyerAgent;
 import enterpriseTest.model.SupplyProposal;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
@@ -121,8 +121,7 @@ public class BuyBehaviour extends ContractNetInitiator {
 	 * agent's set of behaviours when this method is called.
 	 */
 	public int onEnd() {
-		((EnterpriseAgent) myAgent).setupNextBuy();
-		
+		((BuyerAgent) myAgent).startNextBuy();
 		return 1; // 1 means finished
 	}
 

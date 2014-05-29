@@ -22,7 +22,8 @@ public class SellDispatcher extends SSResponderDispatcher {
 		this.myPrices = prices;
 		System.out.println("[" + myAgent.getLocalName() + "] I'm selling:");
 		for (Iterator<String> iterator = myPrices.keySet().iterator(); iterator.hasNext();) {
-			System.out.println("\t\t\t" + iterator.next());
+			String product = iterator.next();
+			System.out.println("\t\t\t" + product +"\t" + myPrices.get(product) + "§");
 		}
 	}
 	
