@@ -1,7 +1,9 @@
 package enterpriseTest;
 
+import java.util.Properties;
 import java.util.Random;
 
+import enterpriseTest.agent.EnterpriseAgent;
 import up.fe.liacc.repast.Launcher;
 
 public class MyLauncher extends Launcher {
@@ -9,11 +11,14 @@ public class MyLauncher extends Launcher {
 	/**
 	 * The number of agents.
 	 */
-	static final int NUMBER_OF_AGENTS = 2;
+	static final int NUMBER_OF_AGENTS = 5;
 	String[] products = {EnterpriseAgent.OATS, EnterpriseAgent.RICE, EnterpriseAgent.WHEAT};
 	Random r = new Random();
 
 	public void setup() {
+		Properties properties = System.getProperties();
+		properties.containsKey("debug");
+		
 		// CREATE AGENTS
 		for (int i = 0; i < NUMBER_OF_AGENTS; i++) {
 			EnterpriseAgent agent = new EnterpriseAgent("Agent_" + i);

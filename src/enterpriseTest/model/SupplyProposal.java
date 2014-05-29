@@ -1,4 +1,4 @@
-package enterpriseTest;
+package enterpriseTest.model;
 
 import java.io.Serializable;
 

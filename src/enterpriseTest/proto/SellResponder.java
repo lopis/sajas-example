@@ -2,8 +2,8 @@ package enterpriseTest.proto;
 
 import java.io.IOException;
 
-import enterpriseTest.SupplyProposal;
-import enterpriseTest.SupplyRequest;
+import enterpriseTest.model.SupplyProposal;
+import enterpriseTest.model.SupplyRequest;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
 import up.fe.liacc.sajas.lang.acl.UnreadableException;

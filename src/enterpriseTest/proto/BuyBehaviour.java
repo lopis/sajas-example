@@ -3,8 +3,8 @@ package enterpriseTest.proto;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import enterpriseTest.EnterpriseAgent;
-import enterpriseTest.SupplyProposal;
+import enterpriseTest.agent.EnterpriseAgent;
+import enterpriseTest.model.SupplyProposal;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.domain.FIPANames;

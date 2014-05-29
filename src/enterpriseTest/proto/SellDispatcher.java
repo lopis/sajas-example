@@ -3,7 +3,7 @@ package enterpriseTest.proto;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import enterpriseTest.SupplyRequest;
+import enterpriseTest.model.SupplyRequest;
 import up.fe.liacc.sajas.core.Agent;
 import up.fe.liacc.sajas.core.behaviours.Behaviour;
 import up.fe.liacc.sajas.core.behaviours.SimpleBehaviour;
