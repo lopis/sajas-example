@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import enterpriseTest.agent.BuyerAgent;
+import enterpriseTest.model.Contract;
+import enterpriseTest.model.Contract.OutcomeType;
 import enterpriseTest.model.SupplyProposal;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
@@ -87,6 +89,31 @@ public class BuyBehaviour extends ContractNetInitiator {
 		acceptances.add(m);
 	}
 
+	@Override
+	protected void handleInform(ACLMessage inform) {
+		String outcome = inform.getContent();
+		OutcomeType outcomeType;
+		
+		if (outcome == null) {
+			return;
+		}
+		
+		switch (outcome) {
+		case "FULLFIELD":
+			outcomeType = Contract.OutcomeType.FULLFIELD;
+			break;
+		case "DELAYED":
+			outcomeType = Contract.OutcomeType.DELAYED;
+			break;
+		case "VIOLATED":
+			outcomeType = Contract.OutcomeType.VIOLATED;
+			break;
+		default:
+			return;
+		}
+		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(), outcomeType));
+		this.onEnd();
+	}
 
 //	@Override
 //	protected void handlePropose(ACLMessage m, @SuppressWarnings("rawtypes") Vector acceptances) {
@@ -122,5 +149,6 @@ public class BuyBehaviour extends ContractNetInitiator {
 		((BuyerAgent) myAgent).startNextBuy();
 		return 1; // 1 means finished
 	}
+	
 
 }

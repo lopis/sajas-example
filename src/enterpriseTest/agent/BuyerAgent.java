@@ -14,6 +14,7 @@ import up.fe.liacc.sajas.lang.acl.ACLMessage;
 import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.AchieveREInitiator;
 import enterpriseTest.model.CTObject;
+import enterpriseTest.model.Contract;
 import enterpriseTest.model.Pair;
 import enterpriseTest.model.SupplyRequest;
 import enterpriseTest.proto.BuyBehaviour;
@@ -25,7 +26,7 @@ public class BuyerAgent extends EnterpriseAgent {
 	private int amount;
 	private String product;
 	private ArrayList<AID> sellers = new ArrayList<AID>();
-	private AID ctAgent;
+	public AID ctAgent;
 	private ACLMessage cfp;
 	private ACLMessage ctRequest;
 
@@ -132,5 +133,20 @@ public class BuyerAgent extends EnterpriseAgent {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Sends contract outcome to the trust agent
+	 * @param contract
+	 */
+	public void submitContractOutcome(Contract contract) {
+		try {
+			ACLMessage outcomeMessage = new ACLMessage(ACLMessage.INFORM);
+			outcomeMessage.setContentObject(contract);
+			outcomeMessage.addReceiver(ctAgent);
+			send(outcomeMessage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

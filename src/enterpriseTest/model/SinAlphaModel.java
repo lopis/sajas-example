@@ -109,8 +109,8 @@ public class SinAlphaModel {
 		double lambda;
 		
 		// determine the increment to alpha
-		if (evidence.getResult() == Contract.OutcomeType.F) {
-			lambda = Contract.lambdaPerOutcomeType[Contract.OutcomeType.F.ordinal()];
+		if (evidence.getResult() == Contract.OutcomeType.FULLFIELD) {
+			lambda = Contract.lambdaPerOutcomeType[Contract.OutcomeType.FULLFIELD.ordinal()];
 		}
 		else {
 			// get weighted number of 'negative' outcomes

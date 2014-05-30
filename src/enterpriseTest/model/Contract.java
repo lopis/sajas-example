@@ -12,7 +12,7 @@ import up.fe.liacc.sajas.core.AID;
  */
 public class Contract implements Serializable {
 	
-	public static enum OutcomeType {F, Fd, V};
+	public static enum OutcomeType {FULLFIELD, DELAYED, VIOLATED};
 	public static double lambdaFactorPerOutcomeType[] = {0.0, 0.5, 1.0};
 	public static double lambdaPerOutcomeType[] = {1.0, -0.5, -2.0};
 
@@ -26,6 +26,11 @@ public class Contract implements Serializable {
 	 * @param responder The aid of the agents that was contacted by the initiator
 	 * @param initFullfield True if the initiator fullfield the agreement
 	 * @param respFullfield True if the responder fullfield the agreement
+	 */
+	/**
+	 * 
+	 * @param responder The aid of the agents that was contacted by the initiator
+	 * @param result FULLFIELD, DELAYED or VIOLATED
 	 */
 	public Contract(AID responder, OutcomeType result) {
 		super();
