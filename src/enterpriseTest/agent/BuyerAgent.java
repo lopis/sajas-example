@@ -141,7 +141,7 @@ public class BuyerAgent extends EnterpriseAgent {
 	 */
 	public void submitContractOutcome(Contract contract) {
 		try {
-			ACLMessage outcomeMessage = new ACLMessage(ACLMessage.INFORM);
+			ACLMessage outcomeMessage = new ACLMessage(ACLMessage.REQUEST);
 			outcomeMessage.setContentObject(contract);
 			outcomeMessage.addReceiver(ctAgent);
 			send(outcomeMessage);

@@ -17,6 +17,7 @@ import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.ServiceDescription;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
 import up.fe.liacc.sajas.lang.acl.MessageTemplate;
+import up.fe.liacc.sajas.lang.acl.UnreadableException;
 import up.fe.liacc.sajas.proto.AchieveREResponder;
 
 /**
@@ -83,6 +84,19 @@ public class CTAgent extends RepastAgent {
 
 		return template;
 	}
+	
+
+
+	public void addContract(Object content) {
+		if (content instanceof Contract) {
+			Contract contract = (Contract) content;
+			if (!contracts.containsKey(contract.getResponder())) {
+				contracts.put(contract.getResponder(), new Vector<Contract>());
+			}
+			contracts.get(contract.getResponder()).add(contract);
+			System.out.println("[CTR] " + contract.getResponder().getLocalName() + " " + contract.getResult());
+		}
+	}
 
 	/**
 	 * Behaviour that will respond to requests of computational
@@ -98,6 +112,14 @@ public class CTAgent extends RepastAgent {
 		
 		@Override
 		protected ACLMessage handleRequest(ACLMessage request) {
+			try {
+				if (request.getContentObject() != null) {
+					addContract(request.getContentObject());
+					return null;
+				}
+			} catch (UnreadableException e) {
+				e.printStackTrace();
+			}
 			ACLMessage accept = new ACLMessage(ACLMessage.AGREE);
 			accept.setSender(myAgent.getAID());
 			accept.addReceiver(request.getSender());
