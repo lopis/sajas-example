@@ -81,9 +81,7 @@ public class BuyBehaviour extends ContractNetInitiator {
 		m.setSender(this.getAgent().getAID());
 		m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 		long timeTaken = System.currentTimeMillis() - startTime;
-		System.out.println("[" + myAgent.getLocalName() + "] " + bestOfferAgent.getLocalName() 
-				+ " proposes " + bestOfferPrice + "§ for " + demand + " of " + product + "."
-				+ "\t\tTime:" + timeTaken + "0s");
+		System.out.println("\t\t\t\t" + timeTaken + "ms");
 		m.setConversationId(this.cfp.getConversationId());
 		m.addReceiver(bestOfferAgent);
 		acceptances.add(m);

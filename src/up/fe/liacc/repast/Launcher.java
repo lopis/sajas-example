@@ -20,6 +20,7 @@ public abstract class Launcher implements ContextBuilder<Object>{
 	private Context<Object> context;
 
 	
+	@SuppressWarnings("rawtypes")
 	public Context build(Context<Object> context) {
 		this.context = context;
 		

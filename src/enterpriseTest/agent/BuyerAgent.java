@@ -8,6 +8,7 @@ import java.util.Iterator;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.domain.DFService;
 import up.fe.liacc.sajas.domain.FIPAException;
+import up.fe.liacc.sajas.domain.FIPANames;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
 import up.fe.liacc.sajas.lang.acl.ACLMessage;
 import up.fe.liacc.sajas.lang.acl.UnreadableException;
@@ -23,7 +24,7 @@ public class BuyerAgent extends EnterpriseAgent {
 	int index = 0;
 	private int amount;
 	private String product;
-	private ArrayList<AID> sellers;
+	private ArrayList<AID> sellers = new ArrayList<AID>();
 	private AID ctAgent;
 	private ACLMessage cfp;
 	private ACLMessage ctRequest;
@@ -32,6 +33,8 @@ public class BuyerAgent extends EnterpriseAgent {
 		super(name);
 		this.product = product;
 		this.amount = amount;
+		System.out.println("[" + getLocalName() + "]"
+				+ " I'm buying:\n\t\t" + product + "\t" + amount + " units");
 	}
 
 	@Override
@@ -41,6 +44,7 @@ public class BuyerAgent extends EnterpriseAgent {
 		this.ctAgent = searchTrustAgent();
 		this.ctRequest = new ACLMessage(ACLMessage.REQUEST);
 		this.ctRequest.addReceiver(ctAgent);
+		
 		
 		try {
 			// Search sellers in the DF
@@ -52,6 +56,7 @@ public class BuyerAgent extends EnterpriseAgent {
 			
 			// Create the proposal draft
 			this.cfp = new ACLMessage(ACLMessage.CFP);
+			cfp.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
 			cfp.setContentObject(new SupplyRequest(product, amount));
 			
 			// Start behaviour
@@ -67,10 +72,11 @@ public class BuyerAgent extends EnterpriseAgent {
 
 		// Get the best agents out of the list
 		try {
-			((CTObject) this.ctRequest.getContentObject()).addAll(sellers);
-		} catch (UnreadableException e1) {
-			e1.printStackTrace();
-			return;
+			CTObject cto = new CTObject();
+			cto.addAll(sellers);
+			this.ctRequest.setContentObject(cto);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		// Initiate a request to get the trust values

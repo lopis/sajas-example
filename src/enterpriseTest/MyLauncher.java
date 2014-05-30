@@ -3,7 +3,7 @@ package enterpriseTest;
 import java.util.Properties;
 import java.util.Random;
 
-import contractNetTest.BuyerAgent;
+import enterpriseTest.agent.BuyerAgent;
 import enterpriseTest.agent.CTAgent;
 import enterpriseTest.agent.EnterpriseAgent;
 import enterpriseTest.agent.SellerAgent;
@@ -30,14 +30,16 @@ public class MyLauncher extends Launcher {
 		Random r = new Random();
 		for (int i = 0; i < NUMBER_OF_SELLERS; i++) {
 			int[] prices = {r.nextInt(100), r.nextInt(100), r.nextInt(100)};
-			SellerAgent agent = new SellerAgent("Agent_" + i, prices);
-			acceptNewAgent("Agent_" + i, agent);
+			String name = String.format("Seller_%05d", i);
+			SellerAgent agent = new SellerAgent(name , prices);
+			acceptNewAgent(name, agent);
 		}
 		
 		// CREATE BUYER AGENTS
 		for (int i = 0; i < NUMBER_OF_BUYERS; i++) {
-			BuyerAgent agent = new BuyerAgent();
-			acceptNewAgent("Agent_" + i, agent);
+			String name = String.format("Buyer_%05d", i);
+			BuyerAgent agent = new BuyerAgent(name, products[r.nextInt(3)], r.nextInt(100));
+			acceptNewAgent(name, agent);
 		}
 	}
 	

@@ -16,12 +16,12 @@ import up.fe.liacc.sajas.proto.SSContractNetResponder;
  *
  */
 public class SellResponder extends SSContractNetResponder {
-	
+
 	private int myPrice;
 
 	public SellResponder(Agent a, ACLMessage cfp, String product, int myPrice) {
 		super(a, cfp);
-		
+
 		this.myPrice = myPrice;
 	}
 
@@ -37,34 +37,30 @@ public class SellResponder extends SSContractNetResponder {
 					+ " for " + request.getAmount() 
 					+ " of " + request.getProduct() 
 					+ ": " + (myPrice * request.getAmount()) + "$" );
-			
+
 			return createProposal(m, request);
 		} catch (UnreadableException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	@Override
 	protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose,
 			ACLMessage accept) {
 		System.out.println("[" + myAgent.getLocalName()
 				+ "]\tMy proposal to " + cfp.getSender().getLocalName() + " was accepted.");
-		
-		if (Math.random() > 0.0) {
-			// Prepare INFORM message. 
-			ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
-			reply.setProtocol(cfp.getProtocol());
-			reply.setConversationId(cfp.getConversationId());
-			return reply;
-			
-		} else {
-			myAgent.removeBehaviour(this);
-		}
-		
-		return null;
+
+		myAgent.removeBehaviour(this);
+		// Prepare INFORM message. 
+		ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
+		reply.setContent("FULLFIELD");
+		reply.addReceiver(cfp.getSender());
+		reply.setProtocol(cfp.getProtocol());
+		reply.setConversationId(cfp.getConversationId());
+		return reply;
 	}
-	
+
 	@Override
 	protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose,
 			ACLMessage reject) {
@@ -80,7 +76,7 @@ public class SellResponder extends SSContractNetResponder {
 		try {
 			proposal.setContentObject(new SupplyProposal(request.getProduct(), request.getAmount(), myPrice));
 			return proposal;
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

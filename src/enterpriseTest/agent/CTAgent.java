@@ -1,16 +1,16 @@
 package enterpriseTest.agent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Vector;
 
-import enterpriseTest.Contract;
 import enterpriseTest.model.CTObject;
+import enterpriseTest.model.Contract;
 import enterpriseTest.model.Pair;
 import enterpriseTest.model.SinAlphaModel;
 import up.fe.liacc.repast.RepastAgent;
 import up.fe.liacc.sajas.core.AID;
 import up.fe.liacc.sajas.core.Agent;
+import up.fe.liacc.sajas.core.MessageQueue;
 import up.fe.liacc.sajas.domain.DFService;
 import up.fe.liacc.sajas.domain.FIPAException;
 import up.fe.liacc.sajas.domain.FIPAAgentManagement.DFAgentDescription;
@@ -30,7 +30,8 @@ public class CTAgent extends RepastAgent {
 	 * Contains up-to-date values of trust from some or all agents
 	 */
 	HashMap<AID, Double> trustChache = new HashMap<AID, Double>();
-	HashMap<AID, ArrayList<Contract>> contracts = new HashMap<AID, ArrayList<Contract>>();
+	HashMap<AID, Vector<Contract>> contracts = new HashMap<AID, Vector<Contract>>();
+	SinAlphaModel sinAlphaModel = new SinAlphaModel();
 
 	public void registerCT() {
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -46,6 +47,13 @@ public class CTAgent extends RepastAgent {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	protected MessageQueue getMailBox() {
+		// TODO Auto-generated method stub
+		MessageQueue mailbox = super.getMailBox();
+		return mailbox;
+	}
 
 	/**
 	 * Invoces the SinAlphaModel method `getTrust()` to
@@ -57,7 +65,7 @@ public class CTAgent extends RepastAgent {
 	 */
 	public void getTrust(Pair<AID> pair) {
 		if (contracts.containsKey(pair.key)) {
-			pair.value = SinAlphaModel.getTrust(contracts.get(pair.key));
+			pair.value = sinAlphaModel.getTrust(contracts.get(pair.key));
 		}
 	}
 
@@ -90,6 +98,15 @@ public class CTAgent extends RepastAgent {
 		
 		@Override
 		protected ACLMessage handleRequest(ACLMessage request) {
+			ACLMessage accept = new ACLMessage(ACLMessage.AGREE);
+			accept.setSender(myAgent.getAID());
+			accept.addReceiver(request.getSender());
+			accept.setProtocol(request.getProtocol());
+			return accept;
+		}
+		
+		@Override
+		protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) {
 			try {
 				ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
 				reply.setSender(myAgent.getAID());
