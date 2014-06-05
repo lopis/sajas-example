@@ -10,9 +10,8 @@ public class EnterpriseAgent extends RepastAgent {
 	public static final String WHEAT = "wheat";
 	public static final String OATS = "oats";
 
-	public EnterpriseAgent(String name) {
+	public EnterpriseAgent() {
 		super();
-		setLocalName(name);
 	}
 
 	/**

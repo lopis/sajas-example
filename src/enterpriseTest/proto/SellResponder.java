@@ -1,7 +1,9 @@
 package enterpriseTest.proto;
 
 import java.io.IOException;
+import java.util.Random;
 
+import enterpriseTest.agent.SellerAgent;
 import enterpriseTest.model.SupplyProposal;
 import enterpriseTest.model.SupplyRequest;
 import up.fe.liacc.sajas.core.Agent;
@@ -18,11 +20,14 @@ import up.fe.liacc.sajas.proto.SSContractNetResponder;
 public class SellResponder extends SSContractNetResponder {
 
 	private int myPrice;
+	private double trust; // Odds of 
+	private static Random rand = new Random();;
 
 	public SellResponder(Agent a, ACLMessage cfp, String product, int myPrice) {
 		super(a, cfp);
 
 		this.myPrice = myPrice;
+		this.trust = ((SellerAgent) myAgent).trust;
 	}
 
 	@Override
@@ -32,11 +37,11 @@ public class SellResponder extends SSContractNetResponder {
 			if (request == null) {
 				System.err.println("Supply request is null.");
 			}
-			System.out.println("[" + myAgent.getLocalName()
-					+ "] Propose to " + m.getSender().getLocalName()
-					+ " for " + request.getAmount() 
-					+ " of " + request.getProduct() 
-					+ ": " + (myPrice * request.getAmount()) + "$" );
+//			System.out.println("[" + myAgent.getLocalName()
+//					+ "] Propose to " + m.getSender().getLocalName()
+//					+ " for " + request.getAmount() 
+//					+ " of " + request.getProduct() 
+//					+ ": " + (myPrice * request.getAmount()) + "$" );
 
 			return createProposal(m, request);
 		} catch (UnreadableException e) {
@@ -48,23 +53,35 @@ public class SellResponder extends SSContractNetResponder {
 	@Override
 	protected ACLMessage handleAcceptProposal(ACLMessage cfp, ACLMessage propose,
 			ACLMessage accept) {
-		System.out.println("[" + myAgent.getLocalName()
-				+ "]\tMy proposal to " + cfp.getSender().getLocalName() + " was accepted.");
+//		System.out.println("[" + myAgent.getLocalName()
+//				+ "]\tMy proposal to " + cfp.getSender().getLocalName() + " was accepted.");
 
-		myAgent.removeBehaviour(this);
+		//myAgent.removeBehaviour(this);
 		// Prepare INFORM message. 
 		ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
-		reply.setContent("FULLFIELD");
+		reply.setContent(getFullfield());
 		reply.addReceiver(cfp.getSender());
 		reply.setProtocol(cfp.getProtocol());
 		reply.setConversationId(cfp.getConversationId());
 		return reply;
 	}
 
-	@Override
-	protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose,
-			ACLMessage reject) {
-		System.out.println("[" + myAgent.getLocalName() + "]\tMy proposal was rejected.");
+//	@Override
+//	protected void handleRejectProposal(ACLMessage cfp, ACLMessage propose,
+//			ACLMessage reject) {
+//		System.out.println("[" + myAgent.getLocalName() + "]\tMy proposal was rejected.");
+//	}
+
+	private String getFullfield() {
+	
+		double d = rand.nextDouble() - trust;
+		if (d < 0.3) {
+			return "FULLFIELD";
+		} else if (d > 0.6) {
+			return "VIOLATED";
+		} else {
+			return "DELAYED";
+		}
 	}
 
 	private ACLMessage createProposal(ACLMessage m, SupplyRequest request) {

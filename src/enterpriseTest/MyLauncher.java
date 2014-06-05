@@ -14,33 +14,43 @@ public class MyLauncher extends Launcher {
 	/**
 	 * The number of agents.
 	 */
-	static final int NUMBER_OF_BUYERS 	= 5;
-	static final int NUMBER_OF_SELLERS 	= 5;
+	static final int NUMBER_OF_BUYERS_W_TRUST 	= 1;
+	static final int NUMBER_OF_BUYERS_WO_TRUST 	= 0;
+	static final int NUMBER_OF_SELLERS 	= 20;
 	String[] products = {EnterpriseAgent.OATS, EnterpriseAgent.RICE, EnterpriseAgent.WHEAT};
 	Random r = new Random();
+
 
 	public void setup() {
 		Properties properties = System.getProperties();
 		properties.containsKey("debug");
-		
+
 		// CREATE COMP. TRUST AGENT
 		acceptNewAgent("CTAgent", new CTAgent());
-		
+
 		// CREATE SELLER AGENTS
 		Random r = new Random();
 		for (int i = 0; i < NUMBER_OF_SELLERS; i++) {
 			int[] prices = {r.nextInt(100), r.nextInt(100), r.nextInt(100)};
-			String name = String.format("Seller_%05d", i);
-			SellerAgent agent = new SellerAgent(name , prices);
+			//int price = r.nextInt(100);
+			String name = String.format("Seller_%02d", i);
+			SellerAgent agent = new SellerAgent(products, prices);
 			acceptNewAgent(name, agent);
 		}
-		
-		// CREATE BUYER AGENTS
-		for (int i = 0; i < NUMBER_OF_BUYERS; i++) {
-			String name = String.format("Buyer_%05d", i);
-			BuyerAgent agent = new BuyerAgent(name, products[r.nextInt(3)], r.nextInt(100));
+
+		// CREATE BUYER AGENTS WHO USE TRUST
+		for (int i = 0; i < NUMBER_OF_BUYERS_W_TRUST; i++) {
+			String name = String.format("Buyer_1%1d", i);
+			BuyerAgent agent = new BuyerAgent(products[r.nextInt(products.length)], r.nextInt(100), true);
+			acceptNewAgent(name, agent);
+		}
+
+		// CREATE BUYER AGENTS WHO DON'T USE TRUST
+		for (int i = 0; i < NUMBER_OF_BUYERS_WO_TRUST; i++) {
+			String name = String.format("Buyer_0%1d", i);
+			BuyerAgent agent = new BuyerAgent(products[r.nextInt(products.length)], r.nextInt(100), false);
 			acceptNewAgent(name, agent);
 		}
 	}
-	
+
 }

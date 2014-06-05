@@ -11,15 +11,23 @@ import enterpriseTest.proto.SellDispatcher;
 
 public class SellerAgent extends EnterpriseAgent {
 
+	public static int MAX_PRICE = 0;
 
 	private HashMap<String, Integer> sells = new HashMap<String, Integer>(); // products -> prices
 
-	public SellerAgent(String name, int[] prices) {
-		super(name);
-		
-		sells.put(RICE , prices[0]);
-		sells.put(OATS , prices[1]);
-		sells.put(WHEAT, prices[2]);
+	public double trust = Math.random();
+
+
+	public SellerAgent(String[] products, int[] prices) {
+		super();
+
+		sells.put(products[0], prices[0]);
+		sells.put(products[1], prices[1]);
+		sells.put(products[2], prices[2]);
+
+		MAX_PRICE = Math.max(MAX_PRICE, prices[0]);
+		MAX_PRICE = Math.max(MAX_PRICE, prices[1]);
+		MAX_PRICE = Math.max(MAX_PRICE, prices[2]);
 	}
 
 	@Override
@@ -30,6 +38,11 @@ public class SellerAgent extends EnterpriseAgent {
 	}
 
 	private void setupSell() {
+		System.out.println("[" + getLocalName() + "][" + trust + "] Selling ");
+		for (Iterator<String> iterator = sells.keySet().iterator(); iterator.hasNext();) {
+			String prod = iterator.next();
+			System.out.println( prod +"  " + sells.get(prod) + "§");
+		}
 		// Start responder dispatcher
 		addBehaviour(new SellDispatcher(this, sells));
 		DFAgentDescription dfd = new DFAgentDescription();

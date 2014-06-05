@@ -1,6 +1,5 @@
 package enterpriseTest.proto;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 import enterpriseTest.agent.BuyerAgent;
@@ -18,8 +17,6 @@ public class BuyBehaviour extends ContractNetInitiator {
 
 	String product;
 	int demand;
-	
-	long startTime;
 
 	public BuyBehaviour(Agent agent, ACLMessage cfp, int demand, String product) {
 		super(agent, cfp);
@@ -27,9 +24,9 @@ public class BuyBehaviour extends ContractNetInitiator {
 		this.product = product;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Override
-	public ArrayList<ACLMessage> prepareCfps(ACLMessage cfp) {
-		startTime = System.currentTimeMillis();
+	public Vector prepareCfps(ACLMessage cfp) {
 		return super.prepareCfps(cfp);
 	}
 
@@ -43,9 +40,13 @@ public class BuyBehaviour extends ContractNetInitiator {
 		
 		int bestOfferPrice = Integer.MAX_VALUE;
 		AID bestOfferAgent = null;
+		String conversationID = null;
 
 		for (Object obj : responses) {
 			ACLMessage proposal = (ACLMessage) obj;
+			if (conversationID == null && proposal.getConversationId() != null) {
+				conversationID = proposal.getConversationId();
+			}
 			if (proposal.getPerformative() == ACLMessage.REFUSE) {
 
 			} else {
@@ -57,8 +58,8 @@ public class BuyBehaviour extends ContractNetInitiator {
 						bestOfferPrice = ((SupplyProposal) proposal.getContentObject()).myPrice;
 						if (bestOfferAgent != null) {
 							ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-							m.setSender(this.getAgent().getAID());
 							m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
+							m.setConversationId(conversationID);
 							m.addReceiver(bestOfferAgent);
 							acceptances.add(m);
 						}
@@ -68,7 +69,7 @@ public class BuyBehaviour extends ContractNetInitiator {
 						ACLMessage m = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
 						m.addReceiver(proposal.getSender());
 						m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-						m.setConversationId(this.cfp.getConversationId());
+						m.setConversationId(conversationID);
 						acceptances.add(m);
 					}
 				} catch (UnreadableException e) {
@@ -82,9 +83,7 @@ public class BuyBehaviour extends ContractNetInitiator {
 		ACLMessage m = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
 		m.setSender(this.getAgent().getAID());
 		m.setProtocol(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET);
-		long timeTaken = System.currentTimeMillis() - startTime;
-		System.out.println("\t\t\t\t" + timeTaken + "ms");
-		m.setConversationId(this.cfp.getConversationId());
+		m.setConversationId(conversationID);
 		m.addReceiver(bestOfferAgent);
 		acceptances.add(m);
 	}
@@ -111,7 +110,7 @@ public class BuyBehaviour extends ContractNetInitiator {
 		default:
 			return;
 		}
-		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(), outcomeType));
+		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(), inform.getSender(), outcomeType));
 		this.onEnd();
 	}
 

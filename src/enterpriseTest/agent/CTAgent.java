@@ -1,6 +1,8 @@
 package enterpriseTest.agent;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 
 import enterpriseTest.model.CTObject;
@@ -33,6 +35,12 @@ public class CTAgent extends RepastAgent {
 	HashMap<AID, Double> trustChache = new HashMap<AID, Double>();
 	HashMap<AID, Vector<Contract>> contracts = new HashMap<AID, Vector<Contract>>();
 	SinAlphaModel sinAlphaModel = new SinAlphaModel();
+	
+	static final int COUNT_MAX = 10;
+	int counter = COUNT_MAX;
+	
+	
+	public long startTime = System.currentTimeMillis();
 
 	public void registerCT() {
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -67,6 +75,8 @@ public class CTAgent extends RepastAgent {
 	public void getTrust(Pair<AID> pair) {
 		if (contracts.containsKey(pair.key)) {
 			pair.value = sinAlphaModel.getTrust(contracts.get(pair.key));
+		} else {
+			pair.value = 1.0;
 		}
 	}
 
@@ -93,9 +103,57 @@ public class CTAgent extends RepastAgent {
 			if (!contracts.containsKey(contract.getResponder())) {
 				contracts.put(contract.getResponder(), new Vector<Contract>());
 			}
+			if (!contracts.containsKey(contract.getInitiator())) {
+				contracts.put(contract.getInitiator(), new Vector<Contract>());
+			}
 			contracts.get(contract.getResponder()).add(contract);
-			System.out.println("[CTR] " + contract.getResponder().getLocalName() + " " + contract.getResult());
+			contracts.get(contract.getInitiator()).add(contract);
+			long timeTaken = System.currentTimeMillis() - startTime;
+			System.out.println("[CTR] " + contract.getResponder().getLocalName()
+					+ " " + contract.getResult() + "\t\t\t\t" + timeTaken + "ms");
+			if (counter-- < 0) {
+				counter = COUNT_MAX;
+				System.out.println("------------------------------------------------");
+				System.out.println("      Trust Report                              ");
+
+				long time = System.currentTimeMillis();
+				for (Iterator<AID> iterator = contracts.keySet().iterator(); iterator.hasNext();) {
+					AID aid = iterator.next();
+					int[] contractCount = countContract(aid);
+					Pair<AID> pair = new Pair<AID>(aid, 0);
+					getTrust(pair);
+					System.out.printf("# [%s][%.2f] %d Contracts: 	%-2d%% F 	%-2d%% Fd 	%-2d%% V\n",
+							aid.getLocalName(),
+							pair.value,
+							contracts.get(aid).size(),
+							100 * contractCount[0] / contracts.get(aid).size(),
+							100 * contractCount[1] / contracts.get(aid).size(),
+							100 * contractCount[2] / contracts.get(aid).size());
+				}
+				System.out.printf("## Report took " + (System.currentTimeMillis() - time) + "ms\n");
+			}
 		}
+	}
+
+	private int[] countContract(AID aid) {
+		int[] contractCount = {0,0,0};
+		for (Iterator<Contract> iterator = contracts.get(aid).iterator(); iterator.hasNext();) {
+			Contract contract = iterator.next();
+			switch (contract.getResult()) {
+			case FULLFIELD:
+				contractCount[0]++;
+				break;
+			case DELAYED:
+				contractCount[1]++;
+				break;
+			case VIOLATED:
+				contractCount[2]++;
+				break;
+			default:
+				break;
+			}
+		}
+		return contractCount;
 	}
 
 	/**
@@ -130,6 +188,10 @@ public class CTAgent extends RepastAgent {
 		@Override
 		protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) {
 			try {
+				if (!(request.getContentObject() instanceof CTObject)) {
+					return null;
+				}
+				
 				ACLMessage reply = new ACLMessage(ACLMessage.INFORM);
 				reply.setSender(myAgent.getAID());
 				reply.addReceiver(request.getSender());
@@ -147,8 +209,10 @@ public class CTAgent extends RepastAgent {
 				
 				reply.setContentObject(trustObject);
 				
+				trustObject.sortMax();
+				
 				return reply;
-			} catch (Exception e) {
+			} catch (UnreadableException | IOException e) {
 				return new ACLMessage(ACLMessage.NOT_UNDERSTOOD);
 			}
 		}

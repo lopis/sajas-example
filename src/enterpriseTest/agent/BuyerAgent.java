@@ -2,7 +2,6 @@ package enterpriseTest.agent;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 
 import up.fe.liacc.sajas.core.AID;
@@ -21,6 +20,7 @@ import enterpriseTest.proto.BuyBehaviour;
 
 public class BuyerAgent extends EnterpriseAgent {
 
+	public final static int MAX_AGENTS = 5; // Constraint for trust results
 
 	int index = 0;
 	private int amount;
@@ -30,16 +30,19 @@ public class BuyerAgent extends EnterpriseAgent {
 	private ACLMessage cfp;
 	private ACLMessage ctRequest;
 
-	public BuyerAgent(String name, String product, int amount) {
-		super(name);
+	private boolean useTrust;
+
+	public BuyerAgent(String product, int amount, boolean useTrust) {
 		this.product = product;
 		this.amount = amount;
-		System.out.println("[" + getLocalName() + "]"
-				+ " I'm buying:\n\t\t" + product + "\t" + amount + " units");
+		this.useTrust = useTrust;
 	}
 
 	@Override
 	protected void setup() {
+		
+		System.out.println("[" + getLocalName() + "]"
+				+ " I'm buying:\n\t\t" + product + "\t" + amount + " units");
 
 		// Ask DF who is the CTR
 		this.ctAgent = searchTrustAgent();
@@ -70,12 +73,21 @@ public class BuyerAgent extends EnterpriseAgent {
 	}
 
 	public void startNextBuy() {
+		
+		if (!useTrust) {
+			cfp.clearAllReceiver();
+			for (Iterator<AID> iterator = sellers.iterator(); iterator.hasNext();) {
+				cfp.addReceiver(iterator.next());
+			}
+			addBehaviour(new BuyBehaviour(this, cfp, amount, product));
+			return;
+		}
 
 		// Get the best agents out of the list
 		try {
-			CTObject cto = new CTObject();
-			cto.addAll(sellers);
+			CTObject cto = new CTObject(sellers, MAX_AGENTS);
 			this.ctRequest.setContentObject(cto);
+			this.ctRequest.setConversationId(getLocalName() + "-" + System.nanoTime());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -87,33 +99,35 @@ public class BuyerAgent extends EnterpriseAgent {
 			protected void handleInform(ACLMessage reply) {
 				try {
 					CTObject ct = (CTObject) reply.getContentObject();
-					results = ct.trustValues;
-					Collections.sort(results);
+					this.results = ct.trustValues;
 				} catch (UnreadableException e) {
 					e.printStackTrace();
 				}
 			}
+			
+			@Override
+			public boolean done() {
+				return this.results != null;
+			}
+			
 			@Override
 			public int onEnd() {
-				ArrayList<AID> aids = new ArrayList<AID>();
-				for (int i = 0; i < results.size(); i++) {
-					aids.add(results.get(i).key);
+				if (results != null) {
+					cfp.clearAllReceiver();
+					for (int i = 0; i < results.size(); i++) {
+						cfp.addReceiver(results.get(i).key);
+					}
+					
+					// When the request protocol ends, start the contract net
+					addBehaviour(new BuyBehaviour(this.myAgent, cfp, amount, product));
+					results = null;
 				}
-				// When the result arrives, stat the contract net
-				startContractNet();
 				return 1;
 			}
 		};
 		addBehaviour(ctRequestBehaviour);
 	}
 
-	protected void startContractNet() {
-		cfp.clearAllReceiver();
-		for (Iterator<AID> iterator = sellers.iterator(); iterator.hasNext();) {
-			cfp.addReceiver(iterator.next());
-		}
-		addBehaviour(new BuyBehaviour(this, cfp, amount, product));
-	}
 
 	/**
 	 * Asks the DF who is the computational trust agent.

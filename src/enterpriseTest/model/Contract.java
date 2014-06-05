@@ -19,6 +19,7 @@ public class Contract implements Serializable {
 	private static final long serialVersionUID = -5908507099292269099L;
 	private AID responder;
 	private OutcomeType result;
+	private AID initiator;
 	
 	/**
 	 * 
@@ -32,9 +33,10 @@ public class Contract implements Serializable {
 	 * @param responder The aid of the agents that was contacted by the initiator
 	 * @param result FULLFIELD, DELAYED or VIOLATED
 	 */
-	public Contract(AID responder, OutcomeType result) {
+	public Contract(AID initiator, AID responder, OutcomeType result) {
 		super();
-		this.responder = responder;
+		this.setInitiator(initiator);
+		this.setResponder(responder);
 		this.result = result;
 
 	}
@@ -53,5 +55,13 @@ public class Contract implements Serializable {
 
 	public void setResponder(AID responder) {
 		this.responder = responder;
+	}
+
+	public AID getInitiator() {
+		return initiator;
+	}
+
+	public void setInitiator(AID initiator) {
+		this.initiator = initiator;
 	}
 }
