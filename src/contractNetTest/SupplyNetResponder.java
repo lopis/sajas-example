@@ -11,7 +11,7 @@ import up.fe.liacc.sajas.proto.ContractNetResponder;
 public class SupplyNetResponder extends ContractNetResponder {
 
 	public SupplyNetResponder(Agent agent) {
-		super(agent, createMessageTemplate(FIPANames.InteractionProtocol.FIPA_CONTRACT_NET));
+		super(agent, null);
 	}
 	
 	@Override
