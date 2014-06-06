@@ -35,8 +35,9 @@ public class CTAgent extends RepastAgent {
 	HashMap<AID, Double> trustChache = new HashMap<AID, Double>();
 	HashMap<AID, Vector<Contract>> contracts = new HashMap<AID, Vector<Contract>>();
 	SinAlphaModel sinAlphaModel = new SinAlphaModel();
+	long timeCounter = 0;
 	
-	static final int COUNT_MAX = 10;
+	static final int COUNT_MAX = 500;
 	int counter = COUNT_MAX;
 	
 	
@@ -86,6 +87,7 @@ public class CTAgent extends RepastAgent {
 		addBehaviour(new TrustService(this, createTemplate()));
 		// Register service in the DF
 		registerCT();
+		timeCounter = System.currentTimeMillis();
 	}
 
 	public static MessageTemplate createTemplate() {
@@ -109,29 +111,34 @@ public class CTAgent extends RepastAgent {
 			contracts.get(contract.getResponder()).add(contract);
 			contracts.get(contract.getInitiator()).add(contract);
 			long timeTaken = System.currentTimeMillis() - startTime;
-			System.out.println("[CTR] " + contract.getResponder().getLocalName()
-					+ " " + contract.getResult() + "\t\t\t\t" + timeTaken + "ms");
-			if (counter-- < 0) {
-				counter = COUNT_MAX;
-				System.out.println("------------------------------------------------");
-				System.out.println("      Trust Report                              ");
+//			System.out.println("[CTR] " + contract.getResponder().getLocalName()
+//					+ " " + contract.getResult() + "\t\t\t\t" + timeTaken + "ms");
+			printReport();
+		}
+	}
 
-				long time = System.currentTimeMillis();
-				for (Iterator<AID> iterator = contracts.keySet().iterator(); iterator.hasNext();) {
-					AID aid = iterator.next();
-					int[] contractCount = countContract(aid);
-					Pair<AID> pair = new Pair<AID>(aid, 0);
-					getTrust(pair);
-					System.out.printf("# [%s][%.2f] %d Contracts: 	%-2d%% F 	%-2d%% Fd 	%-2d%% V\n",
-							aid.getLocalName(),
-							pair.value,
-							contracts.get(aid).size(),
-							100 * contractCount[0] / contracts.get(aid).size(),
-							100 * contractCount[1] / contracts.get(aid).size(),
-							100 * contractCount[2] / contracts.get(aid).size());
-				}
-				System.out.printf("## Report took " + (System.currentTimeMillis() - time) + "ms\n");
+	private void printReport() {
+		if (counter-- < 0) {
+			counter = COUNT_MAX;
+			System.out.println("------------------------------------------------");
+			System.out.println("      Trust Report                              ");
+
+			long time = System.currentTimeMillis();
+			for (Iterator<AID> iterator = contracts.keySet().iterator(); iterator.hasNext();) {
+				AID aid = iterator.next();
+				int[] contractCount = countContract(aid);
+				Pair<AID> pair = new Pair<AID>(aid, 0);
+				getTrust(pair);
+				System.out.printf("# [%s][%.2f] %d Contracts: 	%-2d%% F 	%-2d%% Fd 	%-2d%% V\n",
+						aid.getLocalName(),
+						pair.value,
+						contracts.get(aid).size(),
+						100 * contractCount[0] / contracts.get(aid).size(),
+						100 * contractCount[1] / contracts.get(aid).size(),
+						100 * contractCount[2] / contracts.get(aid).size());
 			}
+			System.out.printf("## Report took " + (System.currentTimeMillis() - time)
+					+ "ms at time " + Math.round((System.currentTimeMillis() - timeCounter)*0.001) +  "s\n");
 		}
 	}
 

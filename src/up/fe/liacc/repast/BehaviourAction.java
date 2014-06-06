@@ -32,6 +32,7 @@ public class BehaviourAction implements IAction{
 		// Must iterate like this because action() may modify this list.
 		// May throw ConcurrentModicationException
 		int i = 0;
+//		System.err.println(schedule.size());
 		for (; i < schedule.size(); i++) { 
 			schedule.get(i).action();
 			if (schedule.get(i).done()) {

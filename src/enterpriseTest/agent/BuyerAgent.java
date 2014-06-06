@@ -73,15 +73,6 @@ public class BuyerAgent extends EnterpriseAgent {
 	}
 
 	public void startNextBuy() {
-		
-		if (!useTrust) {
-			cfp.clearAllReceiver();
-			for (Iterator<AID> iterator = sellers.iterator(); iterator.hasNext();) {
-				cfp.addReceiver(iterator.next());
-			}
-			addBehaviour(new BuyBehaviour(this, cfp, amount, product));
-			return;
-		}
 
 		// Get the best agents out of the list
 		try {
@@ -94,12 +85,12 @@ public class BuyerAgent extends EnterpriseAgent {
 		
 		// Initiate a request to get the trust values
 		AchieveREInitiator ctRequestBehaviour = new AchieveREInitiator(this, ctRequest) {
-			ArrayList<Pair<AID>> results;
+			ArrayList<Pair<AID>> sellersTrust;
 			@Override
 			protected void handleInform(ACLMessage reply) {
 				try {
 					CTObject ct = (CTObject) reply.getContentObject();
-					this.results = ct.trustValues;
+					this.sellersTrust = ct.trustValues;
 				} catch (UnreadableException e) {
 					e.printStackTrace();
 				}
@@ -107,20 +98,31 @@ public class BuyerAgent extends EnterpriseAgent {
 			
 			@Override
 			public boolean done() {
-				return this.results != null;
+				return this.sellersTrust != null;
 			}
 			
 			@Override
 			public int onEnd() {
-				if (results != null) {
+				if (sellersTrust != null) {
 					cfp.clearAllReceiver();
-					for (int i = 0; i < results.size(); i++) {
-						cfp.addReceiver(results.get(i).key);
-					}
 					
-					// When the request protocol ends, start the contract net
-					addBehaviour(new BuyBehaviour(this.myAgent, cfp, amount, product));
-					results = null;
+					if (!useTrust) {
+						// Ignore what the CT agent said
+						cfp.clearAllReceiver();
+						for (Iterator<AID> iterator = sellers.iterator(); iterator.hasNext();) {
+							cfp.addReceiver(iterator.next());
+						}
+						addBehaviour(new BuyBehaviour(this.myAgent, cfp, amount, product));
+					} else {
+						for (int i = 0; i < sellersTrust.size(); i++) {
+							cfp.addReceiver(sellersTrust.get(i).key);
+						}
+						
+						// When the request protocol ends, start the contract net
+						addBehaviour(new BuyBehaviour(this.myAgent, cfp, amount, product));
+					}
+					sellersTrust = null;			
+					
 				}
 				return 1;
 			}

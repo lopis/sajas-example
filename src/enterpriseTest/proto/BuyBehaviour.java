@@ -111,7 +111,6 @@ public class BuyBehaviour extends ContractNetInitiator {
 			return;
 		}
 		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(), inform.getSender(), outcomeType));
-		this.onEnd();
 	}
 
 //	@Override
@@ -148,6 +147,5 @@ public class BuyBehaviour extends ContractNetInitiator {
 		((BuyerAgent) myAgent).startNextBuy();
 		return 1; // 1 means finished
 	}
-	
 
 }
