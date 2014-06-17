@@ -74,10 +74,10 @@ public class SellResponder extends SSContractNetResponder {
 
 	private String getFullfield() {
 	
-		double d = rand.nextDouble() - trust;
-		if (d < 0.3) {
+		double d = rand.nextDouble() * 0.5 +  trust * 0.5;
+		if (d > 0.60) {
 			return "FULLFIELD";
-		} else if (d > 0.6) {
+		} else if (d < 0.25) {
 			return "VIOLATED";
 		} else {
 			return "DELAYED";

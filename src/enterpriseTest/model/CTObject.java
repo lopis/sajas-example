@@ -48,6 +48,7 @@ public class CTObject implements Serializable {
 	 * Sorts and retains the ``maxAgents`` number of agents.
 	 */
 	public void sortMax() {
+		Collections.shuffle(trustValues);
 		Collections.sort(trustValues);
 		trustValues = new ArrayList<Pair<AID>>(trustValues.subList(0, maxAgents));
 	}

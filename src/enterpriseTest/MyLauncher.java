@@ -16,7 +16,7 @@ public class MyLauncher extends Launcher {
 	 */
 	static final int NUMBER_OF_BUYERS_W_TRUST 	= 20; // AGents using trust
 	static final int NUMBER_OF_BUYERS_N_TRUST 	= 20; // Agents with no use of trust
-	static final int NUMBER_OF_SELLERS 	= 20;
+	static final int NUMBER_OF_SELLERS 	= 80;
 	String[] products = {EnterpriseAgent.OATS, EnterpriseAgent.RICE, EnterpriseAgent.WHEAT};
 	Random r = new Random();
 
@@ -31,10 +31,11 @@ public class MyLauncher extends Launcher {
 		// CREATE SELLER AGENTS
 		Random r = new Random();
 		for (int i = 0; i < NUMBER_OF_SELLERS; i++) {
-			int[] prices = {r.nextInt(100), r.nextInt(100), r.nextInt(100)};
+			int price = (int) Math.round(100 * r.nextDouble());
+			int[] prices = {price, price, price};
 			//int price = r.nextInt(100);
 			String name = String.format("Seller_%02d", i);
-			SellerAgent agent = new SellerAgent(products, prices);
+			SellerAgent agent = new SellerAgent(products, prices, (1.0*i)/NUMBER_OF_SELLERS);
 			acceptNewAgent(name, agent);
 		}
 

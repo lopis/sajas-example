@@ -21,8 +21,8 @@ public class Pair<T> implements Comparable<Pair<T>>, Serializable {
 		// is less than, equal to, or greater
 		// than the specified object. 
 		return
-			(value > pair.value) ?  1 :
-			(value < pair.value) ? -1 : 0;
+			(value > pair.value) ? -1 :
+			(value < pair.value) ?  1 : 0;
 	}
 	
 	@Override

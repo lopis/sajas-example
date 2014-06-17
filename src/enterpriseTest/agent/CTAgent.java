@@ -3,6 +3,7 @@ package enterpriseTest.agent;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import enterpriseTest.model.CTObject;
@@ -30,15 +31,23 @@ import up.fe.liacc.sajas.proto.AchieveREResponder;
 public class CTAgent extends RepastAgent {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4566114197159872281L;
+	/**
 	 * Contains up-to-date values of trust from some or all agents
 	 */
 	HashMap<AID, Double> trustChache = new HashMap<AID, Double>();
-	HashMap<AID, Vector<Contract>> contracts = new HashMap<AID, Vector<Contract>>();
+	HashMap<AID, Vector<Contract>> sellerContracts 			= new HashMap<AID, Vector<Contract>>();
+	HashMap<AID, Vector<Contract>> buyerNoTrustContracts 	= new HashMap<AID, Vector<Contract>>();
+	HashMap<AID, Vector<Contract>> buyerTrustContracts 		= new HashMap<AID, Vector<Contract>>();
 	SinAlphaModel sinAlphaModel = new SinAlphaModel();
 	long timeCounter = 0;
 	
-	static final int COUNT_MAX = 500;
+	static final int COUNT_MAX = 10;
+	static final int COUNT_STOP = 200;
 	int counter = COUNT_MAX;
+	int counter_stop = COUNT_STOP;
 	
 	
 	public long startTime = System.currentTimeMillis();
@@ -57,13 +66,6 @@ public class CTAgent extends RepastAgent {
 			e.printStackTrace();
 		}
 	}
-	
-	@Override
-	protected MessageQueue getMailBox() {
-		// TODO Auto-generated method stub
-		MessageQueue mailbox = super.getMailBox();
-		return mailbox;
-	}
 
 	/**
 	 * Invoces the SinAlphaModel method `getTrust()` to
@@ -74,8 +76,12 @@ public class CTAgent extends RepastAgent {
 	 * pair is modified by the method.
 	 */
 	public void getTrust(Pair<AID> pair) {
-		if (contracts.containsKey(pair.key)) {
-			pair.value = sinAlphaModel.getTrust(contracts.get(pair.key));
+		if (sellerContracts.containsKey(pair.key)) {
+			pair.value = sinAlphaModel.getTrust(sellerContracts.get(pair.key));
+		} else if (buyerNoTrustContracts.containsKey(pair.key)) {
+			pair.value = sinAlphaModel.getTrust(buyerNoTrustContracts.get(pair.key));
+		} else if (buyerTrustContracts.containsKey(pair.key)) {
+			pair.value = sinAlphaModel.getTrust(buyerTrustContracts.get(pair.key));
 		} else {
 			pair.value = 1.0;
 		}
@@ -91,10 +97,7 @@ public class CTAgent extends RepastAgent {
 	}
 
 	public static MessageTemplate createTemplate() {
-		MessageTemplate template = new MessageTemplate();
-		template.addPerformative(ACLMessage.REQUEST);
-
-		return template;
+		return MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 	}
 	
 
@@ -102,21 +105,34 @@ public class CTAgent extends RepastAgent {
 	public void addContract(Object content) {
 		if (content instanceof Contract) {
 			Contract contract = (Contract) content;
-			if (!contracts.containsKey(contract.getResponder())) {
-				contracts.put(contract.getResponder(), new Vector<Contract>());
+			
+			
+			
+			if (!sellerContracts.containsKey(contract.getResponder())) {
+				sellerContracts.put(contract.getResponder(), new Vector<Contract>());
 			}
-			if (!contracts.containsKey(contract.getInitiator())) {
-				contracts.put(contract.getInitiator(), new Vector<Contract>());
+			sellerContracts.get(contract.getResponder()).add(contract);
+			
+			
+			if (contract.usedTrust()) {
+				if (!buyerTrustContracts.containsKey(contract.getInitiator())) {
+					buyerTrustContracts.put(contract.getInitiator(), new Vector<Contract>());
+				}
+				buyerTrustContracts.get(contract.getInitiator()).add(contract);
+
+			} else if (!contract.usedTrust()) {
+				if (!buyerNoTrustContracts.containsKey(contract.getInitiator())) {
+					buyerNoTrustContracts.put(contract.getInitiator(), new Vector<Contract>());
+				}
+				buyerNoTrustContracts.get(contract.getInitiator()).add(contract);
+
 			}
-			contracts.get(contract.getResponder()).add(contract);
-			contracts.get(contract.getInitiator()).add(contract);
-			long timeTaken = System.currentTimeMillis() - startTime;
-//			System.out.println("[CTR] " + contract.getResponder().getLocalName()
-//					+ " " + contract.getResult() + "\t\t\t\t" + timeTaken + "ms");
-			printReport();
+			
+			printAverageReport();
+			//printReport();
 		}
 	}
-
+	
 	private void printReport() {
 		if (counter-- < 0) {
 			counter = COUNT_MAX;
@@ -124,43 +140,104 @@ public class CTAgent extends RepastAgent {
 			System.out.println("      Trust Report                              ");
 
 			long time = System.currentTimeMillis();
-			for (Iterator<AID> iterator = contracts.keySet().iterator(); iterator.hasNext();) {
+			for (Iterator<AID> iterator = sellerContracts.keySet().iterator(); iterator.hasNext();) {
 				AID aid = iterator.next();
-				int[] contractCount = countContract(aid);
+				Report report = new Report("SL");
+				countContract(sellerContracts, report);
 				Pair<AID> pair = new Pair<AID>(aid, 0);
 				getTrust(pair);
 				System.out.printf("# [%s][%.2f] %d Contracts: 	%-2d%% F 	%-2d%% Fd 	%-2d%% V\n",
 						aid.getLocalName(),
 						pair.value,
-						contracts.get(aid).size(),
-						100 * contractCount[0] / contracts.get(aid).size(),
-						100 * contractCount[1] / contracts.get(aid).size(),
-						100 * contractCount[2] / contracts.get(aid).size());
+						sellerContracts.get(aid).size(),
+						Math.round(report.f /(0.01*report.total)),
+						Math.round(report.fd/(0.01*report.total)),
+						Math.round(report.v /(0.01*report.total)));
 			}
-			System.out.printf("## Report took " + (System.currentTimeMillis() - time)
-					+ "ms at time " + Math.round((System.currentTimeMillis() - timeCounter)*0.001) +  "s\n");
+			System.out.printf("## Report took %dms at time %.2ds\n",
+					(System.currentTimeMillis() - time),
+					(System.currentTimeMillis() - timeCounter)*0.001);
 		}
 	}
 
-	private int[] countContract(AID aid) {
-		int[] contractCount = {0,0,0};
-		for (Iterator<Contract> iterator = contracts.get(aid).iterator(); iterator.hasNext();) {
-			Contract contract = iterator.next();
-			switch (contract.getResult()) {
-			case FULLFIELD:
-				contractCount[0]++;
-				break;
-			case DELAYED:
-				contractCount[1]++;
-				break;
-			case VIOLATED:
-				contractCount[2]++;
-				break;
-			default:
-				break;
+	private void printAverageReport() {
+		if (counter-- < 0) {
+			if (counter_stop-- < 0) {
+				return;
+			}
+			counter = COUNT_MAX;
+			//System.out.println("# Time\tBTF%\tBTD%\tBTV%\tBNF%\tBND%\tBNV%\tSF%\tSD%\tSV%");
+			
+			Report reportSellers 	= new Report("SL");
+			Report reportBuyTrust 	= new Report("BT");
+			Report reportBuyNoTrust = new Report("BN");
+			
+			countContract(sellerContracts, reportSellers);
+			countContract(buyerTrustContracts, reportBuyTrust);
+			countContract(buyerNoTrustContracts, reportBuyNoTrust);
+
+			double timeElapsed = (System.currentTimeMillis() - startTime) * 0.001;
+			
+			System.out.printf("%.2f", timeElapsed);
+			//printReportLine(reportSellers, sellerContracts);
+			printReportLine(reportBuyNoTrust, buyerNoTrustContracts);
+			printReportLine(reportBuyTrust, buyerTrustContracts);
+			System.out.println("");
+		}
+	}
+
+	private void printReportLine(Report report,
+			HashMap<AID, Vector<Contract>> map) {
+		
+		int total = report.total == 0 ? 1 : report.total;
+		System.out.printf("\t%2d%%",Math.round(report.f /(0.01*total)));
+//		System.out.printf("\t%2d%%\t%2d%%\t%2d%%",
+//				Math.round(report.f /(0.01*total)),
+//				Math.round(report.fd/(0.01*total)),
+//				Math.round(report.v /(0.01*total)));
+	}
+	
+	private class Report {
+		public int f  = 0;
+		public int fd = 0;
+		public int v  = 0;
+		public int total = 0;
+		public String type = "";
+		public Report(String type) {
+			this.type = type;
+		}
+	}
+
+	
+
+	/**
+	 * Counts the types of contracts and returns it in an array with 3 values:
+	 * { # fullfield, # delayed, # violated}.
+	 * @param aid
+	 * @return
+	 */
+	private void countContract(Map<AID, Vector<Contract>> map, Report report) {
+		
+		for (Iterator<AID> iterator = map.keySet().iterator(); iterator.hasNext();) {
+			AID aid = iterator.next();
+			for (Iterator<Contract> iterator1 = map.get(aid).iterator(); iterator1.hasNext();) {
+				Contract contract = iterator1.next();
+				switch (contract.getResult()) {
+				case FULLFIELD:
+					report.f++;
+					break;
+				case DELAYED:
+					report.fd++;
+					break;
+				case VIOLATED:
+					report.v++;
+					break;
+				default:
+					break;
+				}
+				report.total++;
 			}
 		}
-		return contractCount;
 	}
 
 	/**
@@ -170,6 +247,11 @@ public class CTAgent extends RepastAgent {
 	 *
 	 */
 	public class TrustService extends AchieveREResponder {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8304430053034124470L;
 
 		protected TrustService(Agent agent, MessageTemplate template) {
 			super(agent, template);
@@ -214,9 +296,8 @@ public class CTAgent extends RepastAgent {
 					getTrust(trustObject.trustValues.get(i));
 				}
 				
-				reply.setContentObject(trustObject);
-				
 				trustObject.sortMax();
+				reply.setContentObject(trustObject);
 				
 				return reply;
 			} catch (UnreadableException | IOException e) {

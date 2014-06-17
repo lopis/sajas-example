@@ -20,6 +20,9 @@ public class Contract implements Serializable {
 	private AID responder;
 	private OutcomeType result;
 	private AID initiator;
+	private boolean usedTrust;
+	
+	public String agentType = "";
 	
 	/**
 	 * 
@@ -33,12 +36,12 @@ public class Contract implements Serializable {
 	 * @param responder The aid of the agents that was contacted by the initiator
 	 * @param result FULLFIELD, DELAYED or VIOLATED
 	 */
-	public Contract(AID initiator, AID responder, OutcomeType result) {
+	public Contract(AID initiator, AID responder, OutcomeType result, boolean usedTrust) {
 		super();
 		this.setInitiator(initiator);
 		this.setResponder(responder);
 		this.result = result;
-
+		this.setUsedTrust(usedTrust);
 	}
 
 	public void setResult (Contract.OutcomeType result) {
@@ -63,5 +66,13 @@ public class Contract implements Serializable {
 
 	public void setInitiator(AID initiator) {
 		this.initiator = initiator;
+	}
+
+	public boolean usedTrust() {
+		return usedTrust;
+	}
+
+	public void setUsedTrust(boolean usedTrust) {
+		this.usedTrust = usedTrust;
 	}
 }

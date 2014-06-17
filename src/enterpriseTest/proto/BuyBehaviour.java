@@ -110,7 +110,8 @@ public class BuyBehaviour extends ContractNetInitiator {
 		default:
 			return;
 		}
-		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(), inform.getSender(), outcomeType));
+		((BuyerAgent) myAgent).submitContractOutcome(new Contract(myAgent.getAID(),
+				inform.getSender(), outcomeType, ((BuyerAgent) myAgent).useTrust));
 	}
 
 //	@Override

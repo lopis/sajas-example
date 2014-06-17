@@ -15,16 +15,18 @@ public class SellerAgent extends EnterpriseAgent {
 
 	private HashMap<String, Integer> sells = new HashMap<String, Integer>(); // products -> prices
 
-	public double trust = Math.random();
+	public double trust = 0.0;
 
 
-	public SellerAgent(String[] products, int[] prices) {
+	public SellerAgent(String[] products, int[] prices, double trust) {
 		super();
 
 		sells.put(products[0], prices[0]);
 		sells.put(products[1], prices[1]);
 		sells.put(products[2], prices[2]);
 
+		this.trust = trust;
+		
 		MAX_PRICE = Math.max(MAX_PRICE, prices[0]);
 		MAX_PRICE = Math.max(MAX_PRICE, prices[1]);
 		MAX_PRICE = Math.max(MAX_PRICE, prices[2]);
@@ -38,11 +40,11 @@ public class SellerAgent extends EnterpriseAgent {
 	}
 
 	private void setupSell() {
-		System.out.println("[" + getLocalName() + "][" + trust + "] Selling ");
-		for (Iterator<String> iterator = sells.keySet().iterator(); iterator.hasNext();) {
-			String prod = iterator.next();
-			System.out.println( prod +"  " + sells.get(prod) + "§");
-		}
+//		System.out.println("[" + getLocalName() + "][" + trust + "] Selling ");
+//		for (Iterator<String> iterator = sells.keySet().iterator(); iterator.hasNext();) {
+//			String prod = iterator.next();
+//			System.out.println( prod +"  " + sells.get(prod) + "§");
+//		}
 		// Start responder dispatcher
 		addBehaviour(new SellDispatcher(this, sells));
 		DFAgentDescription dfd = new DFAgentDescription();

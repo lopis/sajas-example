@@ -20,7 +20,8 @@ import enterpriseTest.proto.BuyBehaviour;
 
 public class BuyerAgent extends EnterpriseAgent {
 
-	public final static int MAX_AGENTS = 5; // Constraint for trust results
+
+	public final static int MAX_AGENTS = 2; // Constraint for trust results
 
 	int index = 0;
 	private int amount;
@@ -30,7 +31,7 @@ public class BuyerAgent extends EnterpriseAgent {
 	private ACLMessage cfp;
 	private ACLMessage ctRequest;
 
-	private boolean useTrust;
+	public boolean useTrust;
 
 	public BuyerAgent(String product, int amount, boolean useTrust) {
 		this.product = product;
@@ -41,8 +42,8 @@ public class BuyerAgent extends EnterpriseAgent {
 	@Override
 	protected void setup() {
 		
-		System.out.println("[" + getLocalName() + "]"
-				+ " I'm buying:\n\t\t" + product + "\t" + amount + " units");
+//		System.out.println("[" + getLocalName() + "]"
+//				+ " I'm buying:\n\t\t" + product + "\t" + amount + " units");
 
 		// Ask DF who is the CTR
 		this.ctAgent = searchTrustAgent();
@@ -85,6 +86,7 @@ public class BuyerAgent extends EnterpriseAgent {
 		
 		// Initiate a request to get the trust values
 		AchieveREInitiator ctRequestBehaviour = new AchieveREInitiator(this, ctRequest) {
+
 			ArrayList<Pair<AID>> sellersTrust;
 			@Override
 			protected void handleInform(ACLMessage reply) {
@@ -94,11 +96,6 @@ public class BuyerAgent extends EnterpriseAgent {
 				} catch (UnreadableException e) {
 					e.printStackTrace();
 				}
-			}
-			
-			@Override
-			public boolean done() {
-				return this.sellersTrust != null;
 			}
 			
 			@Override
