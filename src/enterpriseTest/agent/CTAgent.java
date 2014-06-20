@@ -189,8 +189,8 @@ public class CTAgent extends RepastAgent {
 	private void printReportLine(Report report,
 			HashMap<AID, Vector<Contract>> map) {
 		
-		int total = report.total == 0 ? 1 : report.total;
-		System.out.printf("\t%2d%%",Math.round(report.f /(0.01*total)));
+		double fulfillRate = report.total == 0 ? 50.0 : report.f /(0.01*report.total);
+		System.out.printf("\t%2d%%",Math.round(fulfillRate));
 //		System.out.printf("\t%2d%%\t%2d%%\t%2d%%",
 //				Math.round(report.f /(0.01*total)),
 //				Math.round(report.fd/(0.01*total)),

@@ -41,14 +41,14 @@ public class MyLauncher extends Launcher {
 
 		// CREATE BUYER AGENTS WHO USE TRUST
 		for (int i = 0; i < NUMBER_OF_BUYERS_W_TRUST; i++) {
-			String name = String.format("Buyer_T%2d", i);
+			String name = String.format("Buyer_T%02d", i);
 			BuyerAgent agent = new BuyerAgent(products[r.nextInt(products.length)], r.nextInt(100), true);
 			acceptNewAgent(name, agent);
 		}
 
 		// CREATE BUYER AGENTS WHO DON'T USE TRUST
 		for (int i = 0; i < NUMBER_OF_BUYERS_N_TRUST; i++) {
-			String name = String.format("Buyer_N%2d", i);
+			String name = String.format("Buyer_N%02d", i);
 			BuyerAgent agent = new BuyerAgent(products[r.nextInt(products.length)], r.nextInt(100), false);
 			acceptNewAgent(name, agent);
 		}

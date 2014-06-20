@@ -28,7 +28,7 @@ public class BehaviourAction implements IAction{
 
 	public void execute() {
 		List<Behaviour> schedule = new ArrayList<Behaviour>(behaviours.values());
-		Collections.shuffle(schedule);
+		Collections.shuffle(schedule); 
 		// Must iterate like this because action() may modify this list.
 		// May throw ConcurrentModicationException
 		int i = 0;
